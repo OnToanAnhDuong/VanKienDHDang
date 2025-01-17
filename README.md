@@ -11,7 +11,7 @@
             text-align: center;
             margin: 0;
             padding: 0;
-            background: url('background-image.jpg') no-repeat center center fixed;
+            background: url('khung-khanh-tiet.jpg') no-repeat center center fixed;
             background-size: cover;
             color: white;
         }
@@ -21,11 +21,23 @@
             position: sticky;
             top: 0;
             z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header .left {
+            display: flex;
+            align-items: center;
+        }
+        .header .left img {
+            height: 80px;
+            margin-right: 20px;
         }
         .header h1 {
             margin: 0;
             font-size: 2em;
             font-weight: bold;
+            text-align: center;
         }
         .qr-container {
             display: flex;
@@ -50,7 +62,11 @@
 </head>
 <body>
     <div class="header">
-        <h1>ĐẠI HỘI LẦN THỨ XII NHIỆM KỲ 2025 - 2027</h1>
+        <div class="left">
+            <img src="flag-vietnam.png" alt="Cờ Tổ Quốc">
+            <img src="ho-chi-minh.png" alt="Ảnh Bác Hồ">
+        </div>
+        <h1>ĐẢNG CỘNG SẢN VIỆT NAM QUANG VINH MUÔN NĂM</h1>
     </div>
     <div class="qr-container" id="qrContainer">
         <!-- QR Codes will be generated here -->
