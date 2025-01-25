@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ÔN LUYỆN TOÁN Thay chuong</title>
+    <title>ÔN LUYỆN TOÁN THCS</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -83,6 +83,24 @@
             border-radius: 5px;
             display: block;
         }
+        .problem-list {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .problem-item {
+            cursor: pointer;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .problem-item:last-child {
+            border-bottom: none;
+        }
+        .problem-item:hover {
+            background-color: #e6e6e6;
+        }
     </style>
 </head>
 <body>
@@ -95,6 +113,10 @@
     </div>
 
     <div id="mainContent" style="display: none;">
+        <div id="problemList" class="problem-list">
+            <h2>Danh sách bài tập</h2>
+            <!-- Các bài tập sẽ được hiển thị tại đây -->
+        </div>
         <div id="problemContainer">
             <h2>Đề bài:</h2>
             <div id="problemText">Nội dung bài tập sẽ hiển thị tại đây...</div>
@@ -119,7 +141,6 @@
             'AIzaSyCmY4FdhZ4qSN6HhBtldgQgSNbDlZ4J1ug'
         ];
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/175acnaYklfdCc_UJ7B3LJgNaUJpfrIENxn6LN76QADM/gviz/tq?sheet=Toan6&tqx=out:json`;
-        let currentKeyIndex = 0;
 
         async function fetchProblems() {
             try {
@@ -138,6 +159,19 @@
             }
         }
 
+        function renderProblemList(problems) {
+            const problemListDiv = document.getElementById('problemList');
+            problemListDiv.innerHTML = '<h2>Danh sách bài tập</h2>';
+
+            problems.forEach(problem => {
+                const problemItem = document.createElement('div');
+                problemItem.classList.add('problem-item');
+                problemItem.textContent = `Bài ${problem.index}`;
+                problemItem.addEventListener('click', () => displayProblem(problem));
+                problemListDiv.appendChild(problemItem);
+            });
+        }
+
         function displayProblem(problem) {
             const problemTextDiv = document.getElementById('problemText');
             problemTextDiv.textContent = problem.problem;
@@ -149,7 +183,7 @@
                 alert('Không có bài tập nào để hiển thị.');
                 return;
             }
-            displayProblem(problems[0]); // Hiển thị bài tập đầu tiên
+            renderProblemList(problems);
         }
 
         function switchToMainContent() {
