@@ -122,35 +122,57 @@
 </head>
 <body>
     <h1>ÔN LUYỆN TOÁN LỚP 6  - THẦY GIÁO TÔN THANH CHƯƠNG</h1>
+    <div id="exerciseListContainer"></div>
     <div id="loginContainer">
         <input type="text" id="studentId" placeholder="Nhập mã học sinh">
         <button id="loginBtn">Đăng nhập</button>
     </div>
-    <div id="mainContent" style="display: none;">
-        <div id="problemContainer">
-            <label for="problemText">Đề bài:</label>
-            <div id="problemText"></div>
-        </div>
-        <div id="progressContainer" style="display: none;">
-            <p>
-                Số bài: <span id="completedExercises">0</span> | 
-                Điểm TB: <span id="averageScore">0</span>
-            </p>
-        </div>
+   <div id="mainContent" style="display: none;">
+    <!-- Hàng trên cùng: Khung nhập số và các nút liên quan -->
+    <div id="topControls">
+        <input type="number" id="problemIndexInput" placeholder="Nhập số thứ tự (1, 2, ...)" />
+        <button id="selectProblemBtn">Hiển thị bài tập</button>
         <button id="randomProblemBtn">Lấy bài tập ngẫu nhiên</button>
-        <div id="result"></div>
+    <div id="progressContainer" style="display: none;">
+    <p>
+        Số bài: <span id="completedExercises">0</span> | 
+        Điểm TB: <span id="averageScore">0</span>
+    </p>
+</div>
     </div>
+
+    <!-- Hàng thứ hai: Đề bài -->
+    <div id="problemContainer">
+        <label for="problemText">Đề bài:</label>
+        <div id="problemText"></div>
+    </div>
+
+    <!-- Hàng thứ ba: Các nút chức năng -->
+    <div id="bottomControls">
+        <button id="submitBtn">Chấm Bài</button>
+        <button id="hintBtn">Gợi ý</button>
+    <button id="deleteAllBtn">Xóa tất cả</button>
+    </div>
+  <div id="result"></div>
+         
+        <label for="studentImage">Ảnh bài làm của học sinh:</label>
+        <input type="file" id="studentImage" accept="image/*">
+    </div>
+
     <script>
-        const SHEET_ID = 'YOUR_GOOGLE_SHEET_ID';
-        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=Toan6&tqx=out:json`;
+        const SHEET_ID = '175acnaYklfdCc_UJ7B3LJgNaUJpfrIENxn6LN76QADM';
+        const SHEET_NAME = 'Toan6';
+        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tq=&tqx=out:json`;
 
         let currentStudentId = null;
         let problems = [];
-        let currentProblemIndex = 0;
 
         async function fetchProblems() {
             try {
                 const response = await fetch(SHEET_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const text = await response.text();
                 const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\((.*)\)/)[1]);
                 problems = jsonData.table.rows.map(row => ({
@@ -163,9 +185,9 @@
         }
 
         function displayProblem(index) {
-            const problem = problems[index];
-            if (problem) {
-                document.getElementById('problemText').innerHTML = problem.problem.replace(/\n/g, '<br>');
+            if (problems[index]) {
+                const problemText = problems[index].problem;
+                document.getElementById('problemText').innerHTML = problemText.replace(/\n/g, '<br>');
                 MathJax.typesetPromise();
             }
         }
@@ -180,14 +202,13 @@
             document.getElementById('loginContainer').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
             await fetchProblems();
-            displayProblem(currentProblemIndex);
+            displayProblem(0);
         }
 
         document.getElementById('loginBtn').addEventListener('click', handleLogin);
-
         document.getElementById('randomProblemBtn').addEventListener('click', () => {
-            currentProblemIndex = Math.floor(Math.random() * problems.length);
-            displayProblem(currentProblemIndex);
+            const randomIndex = Math.floor(Math.random() * problems.length);
+            displayProblem(randomIndex);
         });
     </script>
 </body>
