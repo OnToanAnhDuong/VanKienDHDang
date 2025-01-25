@@ -1,108 +1,168 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Tài Liệu</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <title>ÔN LUYỆN TOÁN THCS</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 30px;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            color: #333;
             text-align: center;
-            margin: 0;
-            padding: 0;
-            background: url('khung-khanh-tiet.jpg') no-repeat center center fixed;
-            background-size: cover;
-            color: white;
         }
-        .header {
-            background-color: rgba(0, 0, 0, 0.6);
-            padding: 20px;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .header .left {
-            display: flex;
-            align-items: center;
-        }
-        .header .left img {
-            height: 80px;
-            margin-right: 20px;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 2em;
+        label {
             font-weight: bold;
-            text-align: center;
+            display: block;
+            margin-top: 10px;
         }
-        .qr-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            margin: 20px;
+        input[type="text"], input[type="file"] {
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 8px;
+            box-sizing: border-box;
         }
-        .qr-item {
+        button {
+            padding: 10px 20px;
+            background-color: #5cb85c;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px auto;
+            display: block;
+        }
+        button:hover {
+            background-color: #4cae4c;
+        }
+        #result, #hintText {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        #problemText {
+            font-size: 18px;
+            margin-bottom: 20px;
             border: 1px solid #ddd;
             padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-            text-align: center;
-            background-color: rgba(255, 255, 255, 0.8);
-            color: black;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            min-height: 100px;
+            white-space: pre-wrap;
         }
-        .qr-item canvas {
-            margin-bottom: 10px;
+        #cameraStream {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 2 / 3;
+            max-height: 800px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        #captureButton {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #captureButton:hover {
+            background-color: #0056b3;
+        }
+        #capturedImage {
+            max-width: 100%;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: block;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="left">
-            <img src="flag-vietnam.png" alt="Cờ Tổ Quốc">
-            <img src="ho-chi-minh.png" alt="Ảnh Bác Hồ">
-        </div>
-        <h1>ĐẢNG CỘNG SẢN VIỆT NAM QUANG VINH MUÔN NĂM</h1>
+    <h1>ÔN LUYỆN TOÁN THCS</h1>
+
+    <div id="loginContainer">
+        <label for="studentId">Nhập mã học sinh:</label>
+        <input type="text" id="studentId" placeholder="Nhập mã học sinh">
+        <button id="loginBtn">Đăng nhập</button>
     </div>
-    <div class="qr-container" id="qrContainer">
-        <!-- QR Codes will be generated here -->
+
+    <div id="mainContent" style="display: none;">
+        <div id="problemContainer">
+            <h2>Đề bài:</h2>
+            <div id="problemText">Nội dung bài tập sẽ hiển thị tại đây...</div>
+        </div>
+
+        <div>
+            <video id="cameraStream" autoplay playsinline></video>
+            <button id="captureButton">Chụp ảnh</button>
+            <img id="capturedImage" alt="Ảnh bài làm của học sinh" style="display: none;">
+        </div>
+
+        <div>
+            <button id="submitBtn">Chấm bài</button>
+            <div id="result">Kết quả bài làm sẽ hiển thị tại đây...</div>
+        </div>
     </div>
 
     <script>
-        // Danh sách tài liệu (thay thế URL bằng tài liệu của bạn)
-        const documents = [
-            { name: "Tài liệu 1", url: "https://example.com/document1.pdf" },
-            { name: "Tài liệu 2", url: "https://example.com/document2.pdf" },
-            { name: "Tài liệu 3", url: "https://example.com/document3.pdf" },
+        const API_KEYS = [
+            'AIzaSyCzh6doVzV7Dbmbz60B9pNUQIel2N6KEcI',
+            'AIzaSyBVQcUrVTtwKeAAsFR8ENM8-kgZl8CsUM0',
+            'AIzaSyCmY4FdhZ4qSN6HhBtldgQgSNbDlZ4J1ug'
         ];
+        let currentKeyIndex = 0;
 
-        // Container để chứa QR Codes
-        const qrContainer = document.getElementById("qrContainer");
+        function switchToMainContent() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+        }
 
-        // Hàm tạo QR Code
-        documents.forEach(doc => {
-            const qrItem = document.createElement("div");
-            qrItem.className = "qr-item";
-
-            const qrCanvas = document.createElement("canvas");
-            const title = document.createElement("p");
-            title.textContent = doc.name;
-
-            // Tạo QR Code
-            QRCode.toCanvas(qrCanvas, doc.url, {
-                width: 150,
-            }, (error) => {
-                if (error) console.error(error);
-            });
-
-            qrItem.appendChild(qrCanvas);
-            qrItem.appendChild(title);
-            qrContainer.appendChild(qrItem);
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            const studentId = document.getElementById('studentId').value.trim();
+            if (!studentId) {
+                alert('Vui lòng nhập mã học sinh.');
+                return;
+            }
+            alert('Đăng nhập thành công!');
+            switchToMainContent();
         });
+
+        document.getElementById('captureButton').addEventListener('click', () => {
+            const video = document.getElementById('cameraStream');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const img = document.getElementById('capturedImage');
+            img.src = canvas.toDataURL('image/jpeg');
+            img.style.display = 'block';
+        });
+
+        document.getElementById('submitBtn').addEventListener('click', () => {
+            alert('Chức năng chấm bài đang được phát triển!');
+        });
+
+        async function startCamera() {
+            const video = document.getElementById('cameraStream');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (err) {
+                alert('Không thể truy cập camera!');
+            }
+        }
+
+        startCamera();
     </script>
 </body>
 </html>
