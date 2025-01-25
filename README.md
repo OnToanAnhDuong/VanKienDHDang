@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ÔN LUYỆN TOÁN THCS</title>
+    <title>ÔN LUYỆN TOÁN Thay chuong</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -118,7 +118,39 @@
             'AIzaSyBVQcUrVTtwKeAAsFR8ENM8-kgZl8CsUM0',
             'AIzaSyCmY4FdhZ4qSN6HhBtldgQgSNbDlZ4J1ug'
         ];
+        const SHEET_URL = `https://docs.google.com/spreadsheets/d/175acnaYklfdCc_UJ7B3LJgNaUJpfrIENxn6LN76QADM/gviz/tq?sheet=Toan6&tqx=out:json`;
         let currentKeyIndex = 0;
+
+        async function fetchProblems() {
+            try {
+                const response = await fetch(SHEET_URL);
+                if (!response.ok) throw new Error('Failed to fetch problems.');
+                const text = await response.text();
+                const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\((.*)\)/)[1]);
+                const problems = jsonData.table.rows.map(row => ({
+                    index: row.c[0]?.v?.toString() || '',
+                    problem: row.c[1]?.v || '',
+                })).filter(item => item.index && item.problem);
+                return problems;
+            } catch (error) {
+                console.error('Error fetching problems:', error);
+                return [];
+            }
+        }
+
+        function displayProblem(problem) {
+            const problemTextDiv = document.getElementById('problemText');
+            problemTextDiv.textContent = problem.problem;
+        }
+
+        async function renderProblems() {
+            const problems = await fetchProblems();
+            if (problems.length === 0) {
+                alert('Không có bài tập nào để hiển thị.');
+                return;
+            }
+            displayProblem(problems[0]); // Hiển thị bài tập đầu tiên
+        }
 
         function switchToMainContent() {
             document.getElementById('loginContainer').style.display = 'none';
@@ -133,6 +165,7 @@
             }
             alert('Đăng nhập thành công!');
             switchToMainContent();
+            renderProblems();
         });
 
         document.getElementById('captureButton').addEventListener('click', () => {
