@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -18,98 +17,79 @@
             display: block;
             margin-top: 10px;
         }
-        input[type="text"], input[type="file"] {
+        input[type="text"], input[type="file"], input[type="number"] {
             width: 100%;
             margin-bottom: 15px;
             padding: 8px;
             box-sizing: border-box;
         }
-        button {
+        .button {
             padding: 10px 20px;
-            background-color: #5cb85c;
             border: none;
-            color: white;
+            border-radius: 5px;
             font-size: 16px;
             cursor: pointer;
-            margin: 10px auto;
             display: block;
+            margin: 10px auto;
         }
-        button:hover {
+        .button-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .button-primary:hover {
+            background-color: #0056b3;
+        }
+        .button-success {
+            background-color: #5cb85c;
+            color: white;
+        }
+        .button-success:hover {
             background-color: #4cae4c;
         }
-        #result, #hintText {
+        .button-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+        .button-delete:hover {
+            background-color: #c82333;
+        }
+        .container {
             margin-top: 20px;
             white-space: pre-wrap;
             background-color: #f8f8f8;
             padding: 15px;
             border-radius: 5px;
-        }
-        p#breadcrumb {
-            display: none;
-        }
-        #problemText {
-            font-size: 18px;
-            margin-bottom: 20px;
             border: 1px solid #ddd;
-            padding: 10px;
+        }
+        #cameraStream {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 2 / 3;
+            max-height: 800px;
+            object-fit: cover;
+            border: 1px solid #ddd;
             border-radius: 5px;
-            background-color: #f9f9f9;
-            min-height: 100px;
-            white-space: pre-wrap;
         }
-        #problemContainer, #progressContainer {
-            position: relative;
-            margin-bottom: 20px;
+        #cameraAndImageContainer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            margin-top: 20px;
         }
-        #randomProblemBtn, #loginBtn {
-            display: block;
-            width: 30%;
-            margin-bottom: 10px;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        #randomProblemBtn:hover, #loginBtn:hover {
-            background-color: #0056b3;
-        }
-        #progress {
-            background-color: #e9ecef;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        .message-box {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-            max-width: 80%;
-            width: 400px;
-        }
-        .message-box-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0,0,0,0.5);
-            z-index: 999;
+        #videoContainer, #imageContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 45%;
         }
     </style>
+    <!-- Thêm MathJax -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script>
         window.MathJax = {
             tex: {
-                inlineMath: [['$', '$'], ['\(', '\)']]
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
             },
             svg: {
                 fontCache: 'global'
@@ -121,150 +101,84 @@
     </script>
 </head>
 <body>
-    <h1>ÔN LUYỆN TOÁN LỚP 6  - THẦY GIÁO TÔN THANH CHƯƠNG</h1>
-    <div id="exerciseListContainer"></div>
+    <h1>ÔN LYỆN TOÁN LỚP 6 - THẦY GIÁO TÔN THANH CHƯƠNG</h1>
     <div id="loginContainer">
         <input type="text" id="studentId" placeholder="Nhập mã học sinh">
-        <button id="loginBtn">Đăng nhập</button>
+        <button class="button button-primary" id="loginBtn">Đăng nhập</button>
     </div>
-   <div id="mainContent" style="display: none;">
-    <div id="topControls">
-        <input type="number" id="problemIndexInput" placeholder="Nhập số thứ tự (1, 2, ...)" />
-        <button id="selectProblemBtn">Hiển thị bài tập</button>
-        <button id="randomProblemBtn">Lấy bài tập ngẫu nhiên</button>
-        <div id="progressContainer" style="display: none;">
-            <p>
-                Số bài: <span id="completedExercises">0</span> |
-                Điểm TB: <span id="averageScore">0</span>
-            </p>
+    <div id="mainContent" style="display: none;">
+        <div id="topControls">
+            <input type="number" id="problemIndexInput" placeholder="Nhập số thứ tự (1, 2, ...)">
+            <button class="button button-primary" id="selectProblemBtn">Hiển thị bài tập</button>
+            <button class="button button-primary" id="randomProblemBtn">Lấy bài tập ngẫu nhiên</button>
+        </div>
+        <div class="container" id="problemContainer">
+            <label for="problemText">Đề bài:</label>
+            <div id="problemText"></div>
+        </div>
+        <div id="bottomControls">
+            <button class="button button-success" id="submitBtn">Chấm Bài</button>
+            <button class="button button-success" id="hintBtn">Gợi ý</button>
+            <button class="button button-delete" id="deleteAllBtn">Xóa tất cả</button>
+        </div>
+        <div id="cameraAndImageContainer">
+            <div id="videoContainer">
+                <video id="cameraStream" autoplay playsinline></video>
+                <button class="button button-primary" id="captureButton">Chụp ảnh</button>
+            </div>
+            <div id="imageContainer">
+                <canvas id="photoCanvas" style="display: none;"></canvas>
+                <img id="capturedImage" alt="Ảnh đã chụp" style="max-width: 100%; display: none;">
+            </div>
         </div>
     </div>
-    <div id="problemContainer">
-        <label for="problemText">Đề bài:</label>
-        <div id="problemText"></div>
-    </div>
-    <div id="bottomControls">
-        <button id="submitBtn">Chấm Bài</button>
-        <button id="hintBtn">Gợi ý</button>
-        <button id="deleteAllBtn">Xóa tất cả</button>
-    </div>
-    <div id="result"></div>
-    <label for="studentImage">Ảnh bài làm của học sinh:</label>
-    <input type="file" id="studentImage" accept="image/*">
-    </div>
-
     <script>
-        const SHEET_ID = '175acnaYklfdCc_UJ7B3LJgNaUJpfrIENxn6LN76QADM';
-        const SHEET_NAME = 'Toan6';
-        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tq=&tqx=out:json`;
-
-        const API_KEYS = [
-            'AIzaSyCzh6doVzV7Dbmbz60B9pNUQIel2N6KEcI',
-            'AIzaSyBVQcUrVTtwKeAAsFR8ENM8-kgZl8CsUM0',
-            'AIzaSyCmY4FdhZ4qSN6HhBtldgQgSNbDlZ4J1ug'
-        ];
-
-        let currentStudentId = null;
-        let problems = [];
+        const API_KEYS = [/* API keys */];
         let currentKeyIndex = 0;
 
-        function getNextApiKey() {
-            const key = API_KEYS[currentKeyIndex];
-            currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
-            return key;
-        }
-
-        async function fetchProblems() {
+        async function fetchGoogleSheetData(sheetId, sheetName) {
+            const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?sheet=${sheetName}&tqx=out:json`;
             try {
-                const response = await fetch(SHEET_URL);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const text = await response.text();
-                const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\((.*)\)/)[1]);
-                problems = jsonData.table.rows.map(row => ({
-                    index: row.c[0]?.v || '',
-                    problem: row.c[1]?.v || ''
-                })).filter(item => item.index && item.problem);
+                return JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/)[1]);
             } catch (error) {
-                console.error('Error fetching problems:', error);
+                console.error('Lỗi khi tải dữ liệu Google Sheet:', error);
+                return null;
             }
         }
 
-        async function makeApiRequest(apiUrl, requestBody) {
-            let attempts = 0;
-            while (attempts < API_KEYS.length) {
-                const apiKey = getNextApiKey();
-                try {
-                    const response = await fetch(`${apiUrl}?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(requestBody)
-                    });
-                    if (response.ok) {
-                        return await response.json();
-                    } else if (response.status === 403) {
-                        console.log(`API key expired or invalid: ${apiKey}`);
-                        attempts++;
-                    } else {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                } catch (error) {
-                    console.error('Error making API request:', error);
-                    attempts++;
+        function renderMath(elementId) {
+            const element = document.getElementById(elementId);
+            MathJax.typesetPromise([element])
+                .catch(err => console.error('MathJax rendering error:', err));
+        }
+
+        function displayMessage(elementId, message) {
+            document.getElementById(elementId).textContent = message;
+        }
+
+        function disableActions() {
+            const keysToDisable = ['F12', 'u', 'p', 's', 'a', 'c'];
+            document.addEventListener('contextmenu', e => e.preventDefault());
+            document.addEventListener('keydown', e => {
+                if (keysToDisable.includes(e.key.toLowerCase()) || (e.ctrlKey && keysToDisable.includes(e.key.toLowerCase()))) {
+                    e.preventDefault();
                 }
-            }
-            throw new Error('All API keys have been exhausted or are invalid.');
+            });
         }
+        disableActions();
 
-        function displayProblem(index) {
-            if (problems[index]) {
-                const problemText = problems[index].problem;
-                document.getElementById('problemText').innerHTML = problemText.replace(/\n/g, '<br>');
-                MathJax.typesetPromise();
-            } else {
-                document.getElementById('problemText').textContent = 'Không tìm thấy bài tập.';
-            }
-        }
-
-        async function handleLogin() {
+        document.getElementById('loginBtn').addEventListener('click', () => {
             const studentId = document.getElementById('studentId').value.trim();
-            if (!studentId) {
-                alert('Vui lòng nhập mã học sinh.');
-                return;
-            }
-            currentStudentId = studentId;
-            document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('mainContent').style.display = 'block';
-            await fetchProblems();
-            displayProblem(0);
-        }
-
-        function handleSelectProblem() {
-            const problemIndex = parseInt(document.getElementById('problemIndexInput').value, 10);
-            if (!isNaN(problemIndex) && problemIndex >= 0 && problemIndex < problems.length) {
-                displayProblem(problemIndex);
+            if (studentId) {
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
             } else {
-                alert('Số thứ tự không hợp lệ.');
+                alert('Vui lòng nhập mã học sinh');
             }
-        }
-
-        async function handleHint() {
-            const currentProblemText = document.getElementById('problemText').innerText;
-            if (!currentProblemText) {
-                alert('Không có bài tập để gợi ý.');
-                return;
-            }
-            alert('Gợi ý: Vui lòng đọc kỹ đề bài và áp dụng công thức phù hợp.');
-        }
-
-        document.getElementById('loginBtn').addEventListener('click', handleLogin);
-        document.getElementById('randomProblemBtn').addEventListener('click', () => {
-            const randomIndex = Math.floor(Math.random() * problems.length);
-            displayProblem(randomIndex);
         });
-        document.getElementById('selectProblemBtn').addEventListener('click', handleSelectProblem);
-        document.getElementById('hintBtn').addEventListener('click', handleHint);
     </script>
 </body>
 </html>
