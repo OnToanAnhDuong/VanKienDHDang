@@ -11,7 +11,7 @@ h2 {
 
 #exerciseGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
     gap: 10px;
     margin-top: 10px;
 }
@@ -24,6 +24,8 @@ h2 {
     cursor: pointer;
     background-color: #f0ad4e;
     color: #000;
+    font-weight: bold;
+    font-size: 14px;
 }
 
 .exercise-box.completed {
