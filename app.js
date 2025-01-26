@@ -659,7 +659,8 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 
 // Hàm lấy dữ liệu từ Google Sheets
 function getExercisesData() {
-    fetch(SHEET_URL)
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tq=&tqx=out:json`;
+    fetch(url)
         .then(response => response.json())
         .then(data => {
             const rows = data.feed.entry;
