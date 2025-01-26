@@ -417,6 +417,14 @@ async function generateSimilarProblem(originalProblem) {
             document.getElementById('result').innerHTML = feedback;
             MathJax.typesetPromise([document.getElementById('result')]).catch(err => console.error('MathJax rendering error:', err));
             await updateProgress(score); // Vẫn giữ logic cập nhật nội bộ nếu có
+	    const currentProblemId = problemText.match(/Bài tập số (\d+)/)?.[1]; // Lấy ID bài tập
+if (currentProblemId) {
+    saveExerciseProgress(currentProblemId); // Lưu tiến độ bài tập vào localStorage
+    alert(`Bài tập số ${currentProblemId} đã được lưu vào tiến độ của bạn.`);
+} else {
+    alert('Không xác định được ID bài tập.');
+}
+fetchExerciseData(); // Hiển thị lại danh sách bài tập để cập nhật trạng thái
             // Thêm logic cập nhật điểm trung bình và số bài làm từ Google Sheets
             const sheetId = '165WblAAVsv_aUyDKjrdkMSeQ5zaLiUGNoW26ZFt5KWU'; // ID Google Sheet
             const sheetName = 'StudentProgress'; // Tên tab trong Google Sheet
@@ -644,6 +652,10 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
             alert(`Không tìm thấy lịch sử cho mã học sinh: ${studentId}`);
             return;
         }
+	// Tải tiến độ từ localStorage
+currentStudentId = studentId; // Lưu ID học sinh hiện tại
+studentProgress = loadStudentProgress(currentStudentId); // Tải tiến độ làm bài từ localStorage
+fetchExerciseData(); // Hiển thị danh sách bài tập dựa trên tiến độ
         // Hiển thị tiến độ
         document.getElementById('progressContainer').style.display = 'block';
         document.getElementById('completedExercises').textContent = studentData.c[2]?.v || '0'; // Cột C: Số bài tập đã làm
@@ -658,6 +670,22 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 });
 
 // Hàm lấy dữ liệu từ Google Sheets
+
+let currentStudentId = null; // Lưu trữ ID học sinh đang đăng nhập
+let studentProgress = {}; // Tiến độ làm bài của học sinh
+
+// Lấy dữ liệu tiến độ từ localStorage dựa trên ID học sinh
+function loadStudentProgress(studentId) {
+    const savedProgress = localStorage.getItem(`progress_${studentId}`);
+    return savedProgress ? JSON.parse(savedProgress) : {};
+}
+
+// Lưu tiến độ làm bài của học sinh vào localStorage
+function saveStudentProgress(studentId, progress) {
+    localStorage.setItem(`progress_${studentId}`, JSON.stringify(progress));
+}
+
+// Hàm lấy dữ liệu bài tập từ Google Sheets
 async function fetchExerciseData() {
     try {
         const response = await fetch(SHEET_URL);
@@ -665,55 +693,81 @@ async function fetchExerciseData() {
         const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/)[1]);
         const rows = jsonData.table.rows;
 
-        // Xử lý dữ liệu từ Google Sheets
         const exercises = rows.map(row => ({
             id: row.c[0]?.v || '0', // Mã bài tập
             name: row.c[1]?.v || 'Không có tên', // Tên bài tập
-            status: row.c[2]?.v || 'Chưa làm' // Trạng thái bài tập
+            status: studentProgress[row.c[0]?.v] ? 'Đã làm' : 'Chưa làm', // Trạng thái dựa trên tiến độ
+            problem: row.c[3]?.v || 'Nội dung bài tập chưa được cập nhật' // Nội dung chi tiết
         }));
 
-        renderExerciseList(exercises); // Gọi hàm hiển thị danh sách bài tập
+        renderExerciseList(exercises);
     } catch (error) {
         console.error('Lỗi khi lấy dữ liệu từ Google Sheets:', error);
     }
 }
 
-// Hàm hiển thị danh sách bài tập
+// Hiển thị danh sách bài tập
 function renderExerciseList(exercises) {
     const exerciseListContainer = document.getElementById('exercise-list');
-    exerciseListContainer.innerHTML = ''; // Xóa nội dung cũ (nếu có)
+    exerciseListContainer.innerHTML = '';
 
     exercises.forEach(exercise => {
         const exerciseDiv = document.createElement('div');
         exerciseDiv.classList.add('exercise-item');
         exerciseDiv.classList.add(exercise.status.toLowerCase() === 'đã làm' ? 'completed' : 'not-completed');
-        exerciseDiv.textContent = exercise.id; // Hiển thị mã bài tập
+        exerciseDiv.textContent = exercise.id;
 
-        // Xử lý sự kiện khi người dùng nhấp vào bài tập
+        // Xử lý khi người dùng nhấn vào bài tập
         exerciseDiv.onclick = () => handleExerciseClick(exercise);
 
         exerciseListContainer.appendChild(exerciseDiv);
     });
 }
 
-// Hàm xử lý khi người dùng nhấp vào bài tập
+// Xử lý khi học sinh nhấn vào bài tập
 function handleExerciseClick(exercise) {
-    const problemTextContainer = document.getElementById("problemText"); // Vị trí hiển thị đề bài
+    const problemTextContainer = document.getElementById('problemText');
 
     if (exercise.status.toLowerCase() === 'đã làm') {
         const confirmRedo = confirm(`Bài tập "${exercise.name}" đã được làm. Bạn có muốn làm lại không?`);
         if (confirmRedo) {
-            // Hiển thị nội dung bài tập trong problemTextContainer
-            problemTextContainer.textContent = `Bài tập: ${exercise.name}\nMô tả: Đây là nội dung bài tập số ${exercise.id}`;
+            problemTextContainer.textContent = exercise.problem;
+        } else {
+            alert('Mời bạn chọn bài tập khác.');
         }
     } else {
-        // Hiển thị nội dung bài tập trong problemTextContainer
-        problemTextContainer.textContent = `Bài tập: ${exercise.name}\nMô tả: Đây là nội dung bài tập số ${exercise.id}`;
+        problemTextContainer.textContent = exercise.problem;
     }
 }
 
-// Gọi hàm fetchExerciseData khi trang tải
-fetchExerciseData();
+// Đánh dấu bài tập là hoàn thành
+function markExerciseAsCompleted(exerciseId) {
+    studentProgress[exerciseId] = true; // Lưu bài tập đã hoàn thành
+    saveStudentProgress(currentStudentId, studentProgress); // Lưu tiến độ vào localStorage
+    fetchExerciseData(); // Cập nhật giao diện
+}
+// Hàm lưu tiến độ bài tập vào localStorage
+function saveExerciseProgress(problemId) {
+    if (!currentStudentId) {
+        alert('Không tìm thấy ID học sinh. Vui lòng đăng nhập lại!');
+        return;
+    }
+
+    // Lấy tiến độ hiện tại từ localStorage
+    const progressKey = `progress_${currentStudentId}`;
+    const savedProgress = JSON.parse(localStorage.getItem(progressKey)) || {};
+
+    // Đánh dấu bài tập là "Đã làm"
+    savedProgress[problemId] = true;
+
+    // Lưu tiến độ mới vào localStorage
+    localStorage.setItem(progressKey, JSON.stringify(savedProgress));
+}
+// Hàm khôi phục tiến độ từ localStorage khi học sinh đăng nhập
+function loadStudentProgress(studentId) {
+    const progressKey = `progress_${studentId}`;
+    return JSON.parse(localStorage.getItem(progressKey)) || {};
+}
 });
        // Các đoạn mã ngăn chặn xem mã nguồn và bảo vệ nội dung
         (function() {
