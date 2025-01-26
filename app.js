@@ -688,19 +688,18 @@ function saveStudentProgress(studentId, progress) {
 // Hàm lấy dữ liệu bài tập từ Google Sheets
 async function fetchExerciseData() {
     try {
-        const response = await fetch(SHEET_URL);
+        const response = await fetch(SHEET_URL); // Lấy dữ liệu từ Google Sheets
         const text = await response.text();
         const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/)[1]);
         const rows = jsonData.table.rows;
 
+        // Ánh xạ dữ liệu từ Google Sheets
         const exercises = rows.map(row => ({
-            id: row.c[0]?.v || '0', // Mã bài tập
-            name: row.c[1]?.v || 'Không có tên', // Tên bài tập
-            status: studentProgress[row.c[0]?.v] ? 'Đã làm' : 'Chưa làm', // Trạng thái dựa trên tiến độ
-            problem: row.c[3]?.v || 'Nội dung bài tập chưa được cập nhật' // Nội dung chi tiết
+            id: row.c[0]?.v || '0', // Số thứ tự từ cột A
+            problem: row.c[1]?.v || 'Nội dung bài tập chưa được cập nhật' // Nội dung từ cột B
         }));
 
-        renderExerciseList(exercises);
+        renderExerciseList(exercises); // Hiển thị danh sách bài tập
     } catch (error) {
         console.error('Lỗi khi lấy dữ liệu từ Google Sheets:', error);
     }
