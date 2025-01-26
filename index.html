@@ -16,26 +16,31 @@
     </div>
     <div id="mainContent" style="display: none;">
         <div id="topControls">
-            <input type="number" id="problemIndexInput" placeholder="Nhập số thứ tự (1, 2, ...)">
+            <input type="number" id="problemIndexInput" placeholder="Nhập số thứ tự (1, 2, ...)" min="1">
             <button id="selectProblemBtn">Hiển thị bài tập</button>
             <button id="randomProblemBtn">Lấy bài tập ngẫu nhiên</button>
-            <div id="progressContainer" style="display: none;">
-                <p>
-                    Số bài: <span id="completedExercises">0</span> |
-                    Điểm TB: <span id="averageScore">0</span>
-                </p>
-            </div>
         </div>
+
         <div id="problemContainer">
             <label for="problemText">Đề bài:</label>
             <div id="problemText"></div>
         </div>
+
+        <div id="exerciseList">
+            <h2>Danh sách bài tập:</h2>
+            <div id="exerciseGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 10px;">
+                <!-- Các ô bài tập sẽ được tạo động tại đây -->
+            </div>
+        </div>
+
         <div id="bottomControls">
             <button id="submitBtn">Chấm Bài</button>
             <button id="hintBtn">Gợi ý</button>
             <button id="deleteAllBtn">Xóa tất cả</button>
         </div>
+
         <div id="result"></div>
+
         <label for="studentImage">Ảnh bài làm của học sinh:</label>
         <input type="file" id="studentImage" accept="image/*">
     </div>
