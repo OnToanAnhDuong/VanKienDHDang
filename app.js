@@ -3,9 +3,7 @@ const SHEET_NAME = 'Toan6';
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tq=&tqx=out:json`;
 
 const API_KEYS = [
-    'AIzaSyCzh6doVzV7Dbmbz60B9pNUQIel2N6KEcI',
-    'AIzaSyBVQcUrVTtwKeAAsFR8ENM8-kgZl8CsUM0',
-    'AIzaSyCmY4FdhZ4qSN6HhBtldgQgSNbDlZ4J1ug'
+    'AIzaSyCzh6doVzV7Dbmbz60B9pNUQIel2N6KEcI'
 ];
 
 let currentStudentId = null;
@@ -31,9 +29,41 @@ async function fetchProblems() {
             index: row.c[0]?.v || '',
             problem: row.c[1]?.v || ''
         })).filter(item => item.index && item.problem);
+        console.log('Danh sách bài tập:', problems);
     } catch (error) {
         console.error('Error fetching problems:', error);
     }
+}
+
+const exerciseGrid = document.getElementById('exerciseGrid');
+
+function renderExerciseList() {
+    exerciseGrid.innerHTML = ''; // Xóa nội dung cũ
+
+    if (problems.length === 0) {
+        exerciseGrid.textContent = 'Danh sách bài tập chưa được tải.';
+        return;
+    }
+
+    problems.forEach((problem, index) => {
+        const exerciseBox = document.createElement('div');
+        exerciseBox.textContent = `Bài ${problem.index}`;
+        exerciseBox.style.border = '1px solid #ddd';
+        exerciseBox.style.borderRadius = '5px';
+        exerciseBox.style.padding = '10px';
+        exerciseBox.style.textAlign = 'center';
+        exerciseBox.style.cursor = 'pointer';
+        exerciseBox.style.backgroundColor = '#f0ad4e'; // Màu cam: chưa làm
+        exerciseBox.style.color = '#000';
+
+        exerciseBox.addEventListener('click', () => {
+            displayProblem(index);
+            exerciseBox.style.backgroundColor = '#5cb85c'; // Màu xanh: đã làm
+            exerciseBox.style.color = '#fff';
+        });
+
+        exerciseGrid.appendChild(exerciseBox);
+    });
 }
 
 function displayProblem(index) {
@@ -56,7 +86,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
     document.getElementById('loginContainer').style.display = 'none';
     document.getElementById('mainContent').style.display = 'block';
     await fetchProblems();
-    displayProblem(0);
+    renderExerciseList();
 });
 
 document.getElementById('randomProblemBtn').addEventListener('click', () => {
@@ -66,46 +96,9 @@ document.getElementById('randomProblemBtn').addEventListener('click', () => {
 
 document.getElementById('selectProblemBtn').addEventListener('click', () => {
     const problemIndex = parseInt(document.getElementById('problemIndexInput').value, 10);
-    if (!isNaN(problemIndex) && problemIndex >= 0 && problemIndex < problems.length) {
-        displayProblem(problemIndex);
+    if (!isNaN(problemIndex) && problemIndex > 0 && problemIndex <= problems.length) {
+        displayProblem(problemIndex - 1);
     } else {
         alert('Số thứ tự không hợp lệ.');
     }
-});
-const exerciseGrid = document.getElementById('exerciseGrid');
-
-// Hàm tạo danh sách bài tập
-function renderExerciseList() {
-    exerciseGrid.innerHTML = ''; // Xóa nội dung cũ
-
-    if (problems.length === 0) {
-        exerciseGrid.textContent = 'Danh sách bài tập chưa được tải.';
-        return;
-    }
-
-    problems.forEach((problem, index) => {
-        const exerciseBox = document.createElement('div');
-        exerciseBox.textContent = `Bài ${problem.index}`;
-        exerciseBox.style.border = '1px solid #ddd';
-        exerciseBox.style.borderRadius = '5px';
-        exerciseBox.style.padding = '10px';
-        exerciseBox.style.textAlign = 'center';
-        exerciseBox.style.cursor = 'pointer';
-        exerciseBox.style.backgroundColor = '#f0ad4e'; // Màu cam: chưa làm
-        exerciseBox.style.color = '#000';
-
-        // Thêm sự kiện khi nhấn vào ô bài tập
-        exerciseBox.addEventListener('click', () => {
-            displayProblem(index);
-            exerciseBox.style.backgroundColor = '#5cb85c'; // Màu xanh: đã làm
-            exerciseBox.style.color = '#fff';
-        });
-
-        exerciseGrid.appendChild(exerciseBox);
-    });
-}
-
-// Gọi renderExerciseList sau khi tải xong danh sách bài tập
-fetchProblems().then(() => {
-    renderExerciseList();
 });
