@@ -1,149 +1,97 @@
-/* Cài đặt chung */
+/* styles.css */
+
 body {
     font-family: Arial, sans-serif;
-    line-height: 1.6;
     margin: 20px;
+    line-height: 1.6;
+    color: #333;
 }
 
-h2 {
-    margin-top: 20px;
-    margin-bottom: 10px;
+h1 {
+    color: #333;
     text-align: center;
 }
 
-/* Danh sách bài tập */
-#exerciseGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-    gap: 10px;
+label {
+    font-weight: bold;
+    display: block;
     margin-top: 10px;
 }
 
-.exercise-box {
-    padding: 10px;
+input[type="text"], input[type="file"], input[type="number"] {
+    width: 100%;
+    margin-bottom: 15px;
+    padding: 8px;
     border: 1px solid #ddd;
     border-radius: 5px;
-    text-align: center;
-    cursor: pointer;
-    background-color: #f0ad4e;
-    color: #000;
-    font-weight: bold;
-    font-size: 14px;
+    box-sizing: border-box;
 }
 
-.exercise-box.completed {
+button {
+    padding: 10px 20px;
     background-color: #5cb85c;
-    color: #fff;
-}
-
-/* Các nút và phần điều khiển */
-.controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    margin-top: 20px;
-    gap: 10px;
-}
-
-.controls button,
-.controls input {
-    padding: 10px;
-    font-size: 14px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    cursor: pointer;
-}
-
-.controls button {
-    background-color: #007bff;
-    color: white;
     border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 10px auto;
+    display: block;
 }
 
-.controls button:hover {
-    background-color: #0056b3;
+button:hover {
+    background-color: #4cae4c;
 }
 
-/* Hiển thị đề bài */
-#problemContainer {
+#result, #hintText {
     margin-top: 20px;
+    white-space: pre-wrap;
+    background-color: #f8f8f8;
+    padding: 15px;
+    border-radius: 5px;
 }
 
 #problemText {
-    padding: 15px;
+    font-size: 18px;
+    margin-bottom: 20px;
     border: 1px solid #ddd;
+    padding: 10px;
     border-radius: 5px;
     background-color: #f9f9f9;
     min-height: 100px;
     white-space: pre-wrap;
 }
 
-/* Upload file */
-.file-upload {
-    margin-top: 20px;
+#cameraAndImageContainer {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+#videoContainer, #imageContainer {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-}
-
-.file-upload label {
-    flex: 1;
-    font-weight: bold;
-}
-
-.file-upload input {
-    flex: 2;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-.file-upload button {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.file-upload button:hover {
-    background-color: #0056b3;
-}
-
-/* Kết quả */
-#result {
-    margin-top: 20px;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #f8f8f8;
-    white-space: pre-wrap;
-}
-
-/* Camera */
-#cameraContainer {
-    margin-top: 20px;
-    text-align: center;
+    max-width: 45%;
 }
 
 #cameraStream {
     width: 100%;
-    max-width: 400px;
-    height: auto;
+    aspect-ratio: 2 / 3;
+    max-height: 800px;
+    object-fit: cover;
     border: 1px solid #ddd;
     border-radius: 5px;
 }
 
 #captureButton {
     margin-top: 10px;
-    padding: 10px 15px;
+    padding: 10px 20px;
     background-color: #007bff;
     border: none;
     color: white;
-    border-radius: 5px;
+    font-size: 16px;
     cursor: pointer;
 }
 
@@ -151,17 +99,85 @@ h2 {
     background-color: #0056b3;
 }
 
-/* Định dạng bổ sung */
-#loginContainer {
-    text-align: center;
+#capturedImage {
+    max-width: 100%;
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    display: block;
+}
+
+#topControls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
     margin-bottom: 20px;
 }
 
-#mainContent {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
+#topControls input[type="number"] {
+    width: 200px;
+    padding: 8px;
     border: 1px solid #ddd;
     border-radius: 5px;
-    background-color: #fff;
+    font-size: 16px;
+}
+
+#topControls button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#topControls button:hover {
+    background-color: #0056b3;
+}
+
+#progressContainer {
+    margin-top: 20px;
+    font-size: 16px;
+}
+
+#progressContainer p {
+    display: flex;
+    gap: 10px;
+    margin: 0;
+}
+
+#progressContainer span {
+    font-weight: bold;
+    color: red;
+}
+
+#bottomControls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+#bottomControls button {
+    padding: 10px 20px;
+    background-color: #5cb85c;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#bottomControls button:hover {
+    background-color: #4cae4c;
+}
+
+button.delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+button.delete:hover {
+    background-color: #c82333;
 }
