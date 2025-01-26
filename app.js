@@ -139,6 +139,11 @@ async function startCamera() {
 
 document.getElementById('captureButton').addEventListener('click', () => {
     const video = document.getElementById('cameraStream');
+    if (!video.videoWidth || !video.videoHeight) {
+        alert('Camera chưa sẵn sàng. Vui lòng thử lại.');
+        return;
+    }
+
     const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
