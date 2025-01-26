@@ -12,7 +12,7 @@ const API_KEYS = [
     'AIzaSyBBNxoJh9UZXbc4shgRc7nUiJKya3JR2eI',
     'AIzaSyAru8K7uUTD85FOCmrNESQmQYh-gfFCOZ8',
     'AIzaSyAkDbRl7iBYWhc00KZ9dZL1_l0cobcC0ak',
-    'AIzaSyAJ9DpLy4uLfbFoyh7IhW9N0uk9YkBEUY4'
+    'AIzaSyAJ9DpLy4UlfbFoyh7IhW9N0uk9YkBEUY4'
 ];
 
 let problems = [];
