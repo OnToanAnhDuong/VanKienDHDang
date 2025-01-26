@@ -111,10 +111,25 @@ async function gradeWithGemini(base64Image, problemText, studentId) {
 document.getElementById('loginBtn').addEventListener('click', async () => {
     const studentId = document.getElementById('studentId').value.trim();
     if (studentId) {
-        currentStudentId = studentId;
-        document.getElementById('loginContainer').style.display = 'none';
-        document.getElementById('mainContent').style.display = 'block';
-        await fetchProblems();
+        try {
+            const response = await fetch(SHEET_URL);
+            const text = await response.text();
+            const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\((.*)\)/)[1]);
+            const studentExists = jsonData.table.rows.some(row => row.c[0]?.v?.toString() === studentId);
+
+            if (studentExists) {
+                currentStudentId = studentId;
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                await fetchProblems();
+                alert('Đăng nhập thành công!');
+            } else {
+                alert('Mã học sinh không tồn tại. Vui lòng kiểm tra lại.');
+            }
+        } catch (error) {
+            console.error('Lỗi khi kiểm tra mã học sinh:', error);
+            alert('Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại sau.');
+        }
     } else {
         alert('Vui lòng nhập mã học sinh');
     }
