@@ -3,256 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>ÔN LUYỆN TOÁN THCS - TRUNG TÂM ÁNH DƯƠNG</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 30px;
-            line-height: 1.6;
-        }
-        h1, h2 {
-            color: #333;
-            text-align: center;
-        }
-        label {
-            font-weight: bold;
-            display: block;
-            margin-top: 10px;
-        }
-        input[type="text"], input[type="file"] {
-            width: 100%;
-            margin-bottom: 15px;
-            padding: 8px;
-            box-sizing: border-box;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #5cb85c;
-            border: none;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            margin: 10px auto;
-            display: block;
-        }
-        button:hover {
-            background-color: #4cae4c;
-        }
-        #result, #hintText {
-            margin-top: 20px;
-            white-space: pre-wrap;
-            background-color: #f8f8f8;
-            padding: 15px;
-            border-radius: 5px;
-        }
-	p#breadcrumb {
-    display: none;
-}
-        #problemText {
-            font-size: 18px;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-            min-height: 100px;
-            white-space: pre-wrap;
-        }
-        #problemContainer, #progressContainer {
-            position: relative;
-            margin-bottom: 20px;
-        }
-        #randomProblemBtn, #loginBtn {
-            display: block;
-            width: 30%;
-            margin-bottom: 10px;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        #randomProblemBtn:hover, #loginBtn:hover {
-            background-color: #0056b3;
-        }
-        #progress {
-            background-color: #e9ecef;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        .message-box {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-            max-width: 80%;
-            width: 400px;
-        }
-        .message-box-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0,0,0,0.5);
-            z-index: 999;
-        }
-	#progressContainer {
-    margin-top: 20px;
-    font-size: 16px; /* Kích cỡ chữ */
-    text-align: left; /* Căn trái */
-}
-
-#progressContainer p {
-    display: flex; /* Sử dụng flexbox để căn chỉnh theo chiều ngang */
-    gap: 10px; /* Khoảng cách giữa các phần tử */
-    margin: 0; /* Loại bỏ khoảng cách mặc định của thẻ <p> */
-}
-
-#progressContainer span {
-    font-weight: bold; /* Làm đậm số liệu */
-    color: red; /* Màu đỏ cho số liệu */
-}
-	#cameraContainer {
-    margin-top: 20px;
-    text-align: center;
-}
-
-#cameraStream {
-    width: 100%; /* Chiều rộng đầy đủ trong container cha */
-    height: auto; /* Tự động điều chỉnh chiều cao dựa trên tỷ lệ video */
-    aspect-ratio: 2 / 3; /* Tỷ lệ 1.5:1 (Chiều rộng : Chiều cao = 2:3) */
-    max-height: 800px; /* (Tùy chọn) Giới hạn chiều cao tối đa */
-    object-fit: cover; /* Đảm bảo video lấp đầy container mà không méo */
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-#captureButton {
-    margin-top: 10px;
-    padding: 10px 20px;
-    background-color: #007bff;
-    border: none;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-#captureButton:hover {
-    background-color: #0056b3;
-}
-#capturedImage {
-    max-width: 100%;
-    margin-top: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    display: block;
-}
- #cameraAndImageContainer {
-    display: flex;
-    justify-content: space-between; /* Khoảng cách giữa video và ảnh */
-    align-items: flex-start; /* Căn lề trên của video và ảnh */
-    gap: 20px; /* Khoảng cách giữa các phần tử */
-    margin-top: 20px;
-}
-
-#videoContainer, #imageContainer {
-    display: flex;
-    flex-direction: column; /* Nội dung bên trong sắp xếp dọc */
-    align-items: center;
-    max-width: 45%;
-} 
-/* Hàng trên cùng: Khung nhập số và các nút */
-#topControls {
-    display: flex; /* Sắp xếp các phần tử trên một hàng ngang */
-    justify-content: center; /* Căn giữa các phần tử */
-    align-items: center; /* Căn giữa theo chiều dọc */
-    gap: 20px; /* Khoảng cách giữa các phần tử */
-    margin-bottom: 20px; /* Khoảng cách dưới hàng */
-    height: auto; /* Chiều cao tự động theo phần tử con */
-    box-sizing: border-box; /* Đảm bảo padding không làm thay đổi kích thước */
-}
-
-#topControls input[type="number"] {
-    width: 200px; /* Đặt chiều rộng cho khung nhập số */
-    height: 40px; /* Chiều cao khớp với nút */
-    padding: 5px 10px; /* Giảm padding để khớp với nút */
-    border: 1px solid #ddd; /* Viền xám nhạt */
-    border-radius: 5px; /* Bo góc nhẹ */
-    font-size: 14px; /* Cỡ chữ nhỏ hơn một chút */
-    box-sizing: border-box; /* Đảm bảo padding không làm thay đổi kích thước */
-}
-
-#topControls button {
-    padding: 0 15px; /* Giảm padding để khớp chiều cao với input */
-    background-color: #007bff; /* Màu nền xanh */
-    color: white; /* Màu chữ trắng */
-    border: none; /* Loại bỏ viền */
-    border-radius: 5px; /* Bo góc nhẹ */
-    font-size: 14px; /* Cỡ chữ nhỏ hơn */
-    cursor: pointer; /* Con trỏ dạng tay */
-    height: 40px; /* Đảm bảo chiều cao khớp với input */
-    line-height: 1; /* Đảm bảo nội dung căn giữa */
-}
-
-#topControls button:hover {
-    background-color: #0056b3; /* Màu xanh đậm hơn khi rê chuột */
-}
-
-/* Hàng thứ hai: Phần đề bài */
-#problemContainer {
-    margin-top: 20px;
-    width: 100%; /* Chiếm toàn bộ chiều ngang */
-}
-
-#problemText {
-    font-size: 18px;
-    border: 1px solid #ddd;
-    padding: 15px;
-    border-radius: 5px;
-    background-color: #f9f9f9;
-    min-height: 200px; /* Đặt chiều cao tối thiểu */
-    white-space: pre-wrap; /* Giữ định dạng dòng của đề bài */
-}
-
-/* Hàng thứ ba: Các nút chức năng */
-#bottomControls {
-    display: flex; /* Sắp xếp các nút trên một hàng ngang */
-    justify-content: center; /* Căn giữa các nút */
-    gap: 20px; /* Khoảng cách giữa các nút */
-    margin-top: 20px; /* Khoảng cách trên hàng */
-}
-
-#bottomControls button {
-    padding: 10px 20px;
-    background-color: #5cb85c;
-    border: none;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-#bottomControls button:hover {
-    background-color: #4cae4c;
-}
-button.delete {
-    background-color: #dc3545;
-    color: white;
-}
-button.delete:hover {
-    background-color: #c82333;
-}
-</style>
-
-    <!-- Thêm MathJax -->
+     <!-- Thêm MathJax -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script>
         window.MathJax = {
@@ -267,6 +18,7 @@ button.delete:hover {
     <script id="MathJax-script" async
         src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
     </script>
+<link rel="stylesheet" href="styles.css"> <!-- Kết nối CSS -->
 </head>
 <body>
     <h1>ÔN LYỆN TOÁN LỚP 6  - THẦY GIÁO TÔN THANH CHƯƠNG</h1>
@@ -288,7 +40,6 @@ button.delete:hover {
     </p>
 </div>
     </div>
-
     <!-- Hàng thứ hai: Đề bài -->
     <div id="problemContainer">
         <label for="problemText">Đề bài:</label>
@@ -318,18 +69,13 @@ button.delete:hover {
         <canvas id="photoCanvas" style="display: none;"></canvas>
         <img id="capturedImage" alt="Ảnh đã chụp" style="max-width: 100%; display: none;">
     </div>
-</div>
-          
+</div>        
     </div>
-
     <script>
         const SHEET_ID = '175acnaYklfdCc_UJ7B3LJgNaUJpfrIENxn6LN76QADM';
         const SHEET_NAME = 'Toan6';
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tq=&tqx=out:json`;
-
-        const API_KEYS = ['AIzaSyCzh6doVzV7Dbmbz60B9pNUQIel2N6KEcI', 'AIzaSyBVQcUrVTtwKeAAsFR8ENM8-kgZl8CsUM0', 'AIzaSyCmY4FdhZ4qSN6HhBtldgQgSNbDlZ4J1ug', 'AIzaSyAkX3rMYxN_-aO95QKMPy-OLIV62esaANU', 'AIzaSyDtmacgYKn1PBgCVWkReF9Kyn6vC4DKZmg', 'AIzaSyAusgvzZkUPT9lHoB7vzZW_frx-Z0xIxU8', 'AIzaSyBBNxoJh9UZXbc4shgRc7nUiJKya3JR2eI', 'AIzaSyAru8K7uUTD85FOCmrNESQmQYh-gfFCOZ8', 'AIzaSyAkDbRl7iBYWhc00KZ9dZL1_l0cobcC0ak', 'AIzaSyAJ9DpLy4uLfbFoyh7IhW9N0uk9YkBEUY4'];
-
-        
+        const API_KEYS = ['AIzaSyCzh6doVzV7Dbmbz60B9pNUQIel2N6KEcI', 'AIzaSyBVQcUrVTtwKeAAsFR8ENM8-kgZl8CsUM0', 'AIzaSyCmY4FdhZ4qSN6HhBtldgQgSNbDlZ4J1ug', 'AIzaSyAkX3rMYxN_-aO95QKMPy-OLIV62esaANU', 'AIzaSyDtmacgYKn1PBgCVWkReF9Kyn6vC4DKZmg', 'AIzaSyAusgvzZkUPT9lHoB7vzZW_frx-Z0xIxU8', 'AIzaSyBBNxoJh9UZXbc4shgRc7nUiJKya3JR2eI', 'AIzaSyAru8K7uUTD85FOCmrNESQmQYh-gfFCOZ8', 'AIzaSyAkDbRl7iBYWhc00KZ9dZL1_l0cobcC0ak', 'AIzaSyAJ9DpLy4uLfbFoyh7IhW9N0uk9YkBEUY4'];        
         let currentKeyIndex = 0;
         let problems = [];
         let currentProblem = null;
@@ -389,18 +135,14 @@ button.delete:hover {
         document.getElementById('problemText').textContent = 'Không thể tải bài toán.';
     }
 }
-
-
-
-        function parseGoogleSheetData(jsonData) {
+function parseGoogleSheetData(jsonData) {
     const data = jsonData.table.rows;
     return data.map(row => ({
         index: row.c[0]?.v || '', // Cột thứ tự
         problem: row.c[1]?.v.replace(/\r\n|\r|\n/g, '\n') || '' // Cột đề bài
     })).filter(item => item.problem && item.index);
 }
-
-        function displayNextProblem() {
+function displayNextProblem() {
     if (problems.length > 0) {
         // Nếu chỉ số hiện tại vượt quá số bài, quay lại bài đầu tiên (tuỳ chọn)
         if (currentProblemIndex >= problems.length) {
@@ -424,7 +166,6 @@ function displayProblemByIndex(index) {
         document.getElementById('problemText').textContent = 'Danh sách bài tập chưa được tải. Vui lòng thử lại.';
         return;
     }
-
     const selectedProblem = problems.find(problem => parseInt(problem.index) === parseInt(index));
     if (selectedProblem) {
         document.getElementById('problemText').innerHTML = formatProblemText(selectedProblem.problem);
@@ -435,7 +176,6 @@ function displayProblemByIndex(index) {
         document.getElementById('problemText').textContent = `Không tìm thấy bài tập với số thứ tự ${index}.`;
     }
 }
-
         function formatProblemText(problemText) {
             return problemText.replace(/\n/g, '<br>').replace(/([a-d]\))/g, '<br>$1');
         }
@@ -449,9 +189,7 @@ function checkCameraAccess() {
         })
         .catch(error => console.error('Lỗi khi kiểm tra thiết bị camera:', error));
 }
-
-
-        // Hàm cập nhật số bài đã làm và điểm trung bình
+       // Hàm cập nhật số bài đã làm và điểm trung bình
         function updateProgress(newScore) {
             completedProblems++;
             totalScore += newScore;
@@ -459,13 +197,11 @@ function checkCameraAccess() {
             document.getElementById("completedProblems").textContent = completedProblems;
             document.getElementById("averageScore").textContent = averageScore.toFixed(2);
         }
-
         // Xử lý khi học sinh giải bài và bấm chấm bài
         document.getElementById('submitBtn').addEventListener('click', function() {
             // Giả sử điểm của bài hiện tại đã được tính là currentProblemScore
             updateProgress(currentProblemScore);
         });
-
         // Xử lý khi học sinh đăng nhập
         document.getElementById('loginBtn').addEventListener('click', function() {
             const studentId = document.getElementById('studentId').value;
@@ -477,7 +213,6 @@ function checkCameraAccess() {
                 alert('Vui lòng nhập mã học sinh');
             }
         });
-
         // Lấy bài toán ngẫu nhiên
         async function fetchProblems() {
     try {
@@ -494,15 +229,12 @@ function checkCameraAccess() {
         document.getElementById('problemText').textContent = 'Lỗi khi tải bài toán. Vui lòng thử lại sau.';
     }
 }
-
-        async function generateSimilarProblem(originalProblem) {
+async function generateSimilarProblem(originalProblem) {
             const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent';
             const promptText = `
             Bạn hãy tạo một bài toán tương tự bài sau bằng cách thay đổi các số liệu một cách phù hợp, nhưng giữ nguyên cấu trúc và dạng toán:
-
             Bài toán gốc:
             ${originalProblem}
-
             Bài toán mới:
             `;
             const requestBody = {
@@ -513,8 +245,7 @@ function checkCameraAccess() {
                         ]
                     }
                 ]
-            };
-            
+            };           
             try {
                 const data = await makeApiRequest(apiUrl, requestBody);
                 return data.candidates[0].content.parts[0].text.trim();
@@ -523,13 +254,11 @@ function checkCameraAccess() {
                 return `Đã xảy ra lỗi: ${error.message}`;
             }
         }
-
         async function generateHint(problemText) {
             const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent';
             const promptText = `
             Đề bài:
             ${problemText}
-
             Hãy đưa ra một gợi ý ngắn gọn để giúp học sinh giải bài toán này. Gợi ý nên:
             1. Không cung cấp đáp án trực tiếp
             2. Hướng dẫn học sinh về hướng giải quyết hoặc công thức cần sử dụng
@@ -546,8 +275,7 @@ function checkCameraAccess() {
                         ]
                     }
                 ]
-            };
-            
+            };          
             try {
                 const data = await makeApiRequest(apiUrl, requestBody);
                 let hint = data.candidates[0].content.parts[0].text.trim();
@@ -558,7 +286,6 @@ function checkCameraAccess() {
                 return `Đã xảy ra lỗi khi tạo gợi ý: ${error.message}`;
             }
         }
-
         async function gradeWithGemini(base64Image, problemText, studentId) {
             const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-002:generateContent';
             const promptText = `
@@ -585,7 +312,6 @@ function checkCameraAccess() {
             - Hãy đảm bảo tính chính xác và khách quan trong việc chấm điểm và nhận xét.
             - Nếu có sự không nhất quán giữa bài làm và điểm số, hãy giải thích rõ lý do.
             `;
-
             const requestBody = {
                 contents: [
                     {
@@ -595,8 +321,7 @@ function checkCameraAccess() {
                         ]
                     }
                 ]
-            };
-            
+            };            
             try {
                 const data = await makeApiRequest(apiUrl, requestBody);
                 const response = data?.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -613,7 +338,6 @@ function checkCameraAccess() {
                 return { studentAnswer: '', feedback: `Đã xảy ra lỗi: ${error.message}`, score: 0 };
             }
         }
-
         async function submitToGoogleForm(score, studentId, problemText, studentAnswer, feedback, studentName) {
             const formId = '1FAIpQLSd4HefrKz-FAyo4YCttFzI9j9wEYQ7IVL38uZe8EwMtTj6KCw';
             const entryName = 'entry.854745128';
@@ -622,7 +346,6 @@ function checkCameraAccess() {
             const entryFeedback = 'entry.34713471';
 	    const entryScore = 'entry.413593378';
 	    const entryTen = 'entry.1135916403';
-
             const formData = new URLSearchParams();
             formData.append(entryName, `${studentId}`);
             formData.append(entryProblem, problemText || 'Không có đề bài');
@@ -630,8 +353,6 @@ function checkCameraAccess() {
             formData.append(entryFeedback, feedback || 'Không có phản hồi');
 	    formData.append(entryScore, score || '0');
 	    formData.append(entryTen, `${studentName}`);
- 
-
             try {
                 const response = await fetch(`https://docs.google.com/forms/d/e/${formId}/formResponse`, {
                     method: 'POST',
@@ -645,7 +366,6 @@ function checkCameraAccess() {
                 return false;
             }
         }
-
         function getBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -654,7 +374,6 @@ function checkCameraAccess() {
                 reader.onerror = error => reject(error);
             });
         }
-
         async function displayRandomProblem() {
             if (problems.length > 0) {
                 const randomIndex = Math.floor(Math.random() * problems.length);
@@ -671,15 +390,13 @@ function checkCameraAccess() {
                 document.getElementById('problemText').textContent = 'Không có bài toán nào.';
             }
         }
-
         async function checkStudentId(studentId) {
             const progressUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=StudentProgress&tq=&tqx=out:json`;
             try {
                 const response = await fetch(progressUrl);
                 const text = await response.text();
                 const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/)[1]);
-                const rows = jsonData.table.rows;
-                
+                const rows = jsonData.table.rows;                
                 const studentRow = rows.find(row => row.c[0]?.v?.toString() === studentId);
                 if (studentRow) {
                     studentName = studentRow.c[3]?.v || '';
@@ -691,39 +408,30 @@ function checkCameraAccess() {
                 return false;
             }
         }
-
         async function updateProgress(score) {
     if (!currentStudentId) {
         console.error('No currentStudentId provided.');
         return;
     }
-
     console.log('Current Student ID:', currentStudentId);
-
     const progressUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=StudentProgress&tq=&tqx=out:json`;
     try {
         const response = await fetch(progressUrl);
         if (!response.ok) {
             throw new Error(`Failed to fetch progress: ${response.statusText}`);
         }
-
         const text = await response.text();
         console.log('Response from Google Sheet:', text);
-
         const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/)[1]);
         const rows = jsonData.table.rows;
         console.log('Parsed Rows:', rows);
-
         let studentRow = rows.find(row => row.c[0]?.v.trim().toLowerCase() === currentStudentId.trim().toLowerCase());
         if (studentRow) {
             console.log('Student Row Data:', studentRow);
-
             let completedProblems = parseInt(studentRow.c[1]?.v || '0') + 1; // Số bài đã làm
             let totalScore = parseFloat(studentRow.c[2]?.v || '0') + score; // Tổng điểm
             let averageScore = totalScore / completedProblems; // Điểm trung bình
-
             console.log('Computed Values:', { completedProblems, totalScore, averageScore });
-
             // Cập nhật giao diện
             const completedElem = document.getElementById('completedProblems');
             const averageElem = document.getElementById('averageScore');
@@ -731,12 +439,9 @@ function checkCameraAccess() {
                 completedElem.textContent = completedProblems; // Hiển thị số bài
                 averageElem.textContent = averageScore.toFixed(2); // Hiển thị điểm trung bình
             } else {
-                console.error('Progress elements not found in DOM.');
-            }
-
+                console.error('Progress elements not found in DOM.');          }
             // Cập nhật Google Sheet
             await updateGoogleSheetData(currentStudentId, completedProblems, totalScore);
-
         } else {
             console.error('Student ID not found in Google Sheet.');
             document.getElementById('completedProblems').textContent = '0';
@@ -746,18 +451,15 @@ function checkCameraAccess() {
         console.error('Error updating progress:', error.message, error.stack);
    	 }
 	}
-
         function showMessageBox(message) {
             const overlay = document.createElement('div');
-            overlay.className = 'message-box-overlay';
-            
+            overlay.className = 'message-box-overlay';            
             const messageBox = document.createElement('div');
             messageBox.className = 'message-box';
             messageBox.innerHTML = `
                 <p>${message}</p>
                 <button onclick="this.parentElement.parentElement.remove()">Đóng</button>
-            `;
-            
+            `;            
             overlay.appendChild(messageBox);
             document.body.appendChild(overlay);
         }
@@ -768,40 +470,30 @@ function checkCameraAccess() {
 
     if (!problemText) {
         alert('Vui lòng đợi đề bài được tải.');
-        return;
-    }
-
+        return;    }
     if (!base64Image && !studentFileInput?.files?.length) {
         alert('Vui lòng chọn hoặc chụp ảnh bài làm của học sinh.');
         return;
     }
-
     // Ưu tiên ảnh từ camera, nếu không có thì sử dụng ảnh tải lên từ file
     const imageToProcess = base64Image || (studentFileInput.files.length > 0 ? await getBase64(studentFileInput.files[0]) : null);
-
     if (!imageToProcess) {
         alert('Không thể lấy ảnh bài làm. Vui lòng thử lại.');
         return;
     }
-
     try {
         document.getElementById('result').innerText = 'Đang xử lý...';
-
         // Gửi ảnh để chấm bài
         const { studentAnswer, feedback, score } = await gradeWithGemini(imageToProcess, problemText, currentStudentId);
-
         const submitted = await submitToGoogleForm(score, currentStudentId, problemText, studentAnswer, feedback, studentName);
-
         if (submitted) {
             document.getElementById('result').innerHTML = feedback;
             MathJax.typesetPromise([document.getElementById('result')]).catch(err => console.error('MathJax rendering error:', err));
             await updateProgress(score); // Vẫn giữ logic cập nhật nội bộ nếu có
-
             // Thêm logic cập nhật điểm trung bình và số bài làm từ Google Sheets
             const sheetId = '165WblAAVsv_aUyDKjrdkMSeQ5zaLiUGNoW26ZFt5KWU'; // ID Google Sheet
             const sheetName = 'StudentProgress'; // Tên tab trong Google Sheet
             const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?sheet=${sheetName}&tqx=out:json`;
-
             // Chờ vài giây để Google Sheets kịp cập nhật
             setTimeout(async () => {
                 try {
@@ -809,34 +501,27 @@ function checkCameraAccess() {
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
-
                     const text = await response.text();
                     const jsonDataMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/);
                     if (!jsonDataMatch) {
                         throw new Error('Không thể phân tích dữ liệu từ Google Sheets.');
                     }
-
                     const jsonData = JSON.parse(jsonDataMatch[1]);
                     const rows = jsonData.table.rows;
-
                     // Tìm thông tin theo mã học sinh
                     const studentData = rows.find(row => {
                         const sheetId = (row.c[0]?.v || '').toString().trim();
                         return sheetId === currentStudentId;
                     });
-
                     if (!studentData) {
                         console.error(`Không tìm thấy dữ liệu cho mã học sinh: ${currentStudentId}`);
                         return;
                     }
-
                     // Cập nhật số bài và điểm trung bình
                     const completedExercises = studentData.c[2]?.v || 0; // Cột C: Số bài đã làm
                     const averageScore = studentData.c[3]?.v || 0; // Cột D: Điểm trung bình
-
                     document.getElementById('completedExercises').textContent = completedExercises; // Cập nhật số bài
                     document.getElementById('averageScore').textContent = averageScore; // Cập nhật điểm trung bình
-
                     console.log(`Số bài đã làm: ${completedExercises}, Điểm trung bình: ${averageScore}`);
                 } catch (error) {
                     console.error('Lỗi khi tải dữ liệu từ Google Sheets:', error);
@@ -851,8 +536,7 @@ function checkCameraAccess() {
         document.getElementById('result').innerText = `Đã xảy ra lỗi: ${error.message}. Vui lòng thử lại sau.`;
     }
 });
-
-        document.getElementById('randomProblemBtn').addEventListener('click', () => {
+       document.getElementById('randomProblemBtn').addEventListener('click', () => {
             displayRandomProblem();
         });
 
@@ -863,7 +547,6 @@ function checkCameraAccess() {
                 alert("Chưa có gợi ý cho bài toán này.");
             }
         });
-
         document.getElementById('loginBtn').addEventListener('click', async () => {
             const studentId = document.getElementById('studentId').value.trim();
             if (studentId) {
@@ -882,23 +565,18 @@ function checkCameraAccess() {
                 alert('Vui lòng nhập mã học sinh');
             }
         });
-
 	document.getElementById('selectProblemBtn').addEventListener('click', async () => {
     const problemIndexInput = document.getElementById('problemIndexInput').value.trim();
-
     // Kiểm tra xem người dùng đã nhập số thứ tự hay chưa
     if (!problemIndexInput) {
         alert('Vui lòng nhập số thứ tự bài cần chọn.');
         return;
     }
-
     // Tìm bài tập theo số thứ tự
     const selectedProblem = problems.find(problem => parseInt(problem.index) === parseInt(problemIndexInput));
-
     if (selectedProblem) {
         // Hiển thị đề bài
         document.getElementById('problemText').innerHTML = formatProblemText(selectedProblem.problem);
-
         // Gọi hàm generateHint() để tạo gợi ý
         try {
             currentHint = await generateHint(selectedProblem.problem);
@@ -907,7 +585,6 @@ function checkCameraAccess() {
             console.error('Lỗi khi tạo gợi ý:', error);
             currentHint = null;
         }
-
         // Hiển thị nội dung MathJax
         MathJax.typesetPromise([document.getElementById('problemText')]).catch(err => {
             console.error('MathJax rendering error:', err);
@@ -917,16 +594,13 @@ function checkCameraAccess() {
         document.getElementById('problemText').textContent = `Không tìm thấy bài tập với số thứ tự ${problemIndexInput}.`;
     }
 });
-
-	document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
     const video = document.getElementById('cameraStream');
     const captureButton = document.getElementById('captureButton');
     const canvas = document.getElementById('photoCanvas');
     const img = document.getElementById('capturedImage');
-  
-    checkCameraAccess(); // Kiểm tra thiết bị
+      checkCameraAccess(); // Kiểm tra thiết bị
     startCamera(); // Bắt đầu camera
-
     async function startCamera() {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -942,7 +616,6 @@ function checkCameraAccess() {
             }
         }
     }
-
     function checkCameraAccess() {
         navigator.mediaDevices.enumerateDevices()
             .then(devices => {
@@ -958,20 +631,16 @@ captureButton.addEventListener('click', () => {
         alert('Camera chưa sẵn sàng. Vui lòng đợi.');
         return;
     }
-
     // Tính toán tỷ lệ khung hình mong muốn (1.5:1)
     const desiredAspectRatio = 1.5; // Chiều cao gấp 1.5 lần chiều rộng
     const videoWidth = video.clientWidth;
     const videoHeight = videoWidth * desiredAspectRatio; // Tính chiều cao theo tỷ lệ 1.5:1
-
     // Đặt kích thước canvas với tỷ lệ mong muốn
     canvas.width = videoWidth;
     canvas.height = videoHeight;
-
     // Tính toán phần video cần cắt để khớp tỷ lệ
     const actualAspectRatio = video.videoHeight / video.videoWidth;
     let sx = 0, sy = 0, sWidth = video.videoWidth, sHeight = video.videoHeight;
-
     if (actualAspectRatio > desiredAspectRatio) {
         // Video quá cao, cắt bớt chiều cao
         sHeight = video.videoWidth * desiredAspectRatio;
@@ -981,18 +650,13 @@ captureButton.addEventListener('click', () => {
         sWidth = video.videoHeight / desiredAspectRatio;
         sx = (video.videoWidth - sWidth) / 2; // Cắt đều hai bên
     }
-	
     // Vẽ nội dung video lên canvas với kích thước và tỷ lệ đã tính toán
     const context = canvas.getContext('2d');
     context.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
-	 
-
     // Chuyển đổi canvas thành Base64 (JPEG, chất lượng 0.9)
     const base64Data = canvas.toDataURL('image/jpeg', 0.9);
     base64Image = base64Data.split(',')[1]; // Loại bỏ tiền tố "data:image/jpeg;base64,"
-
     console.log('Base64 Image:', base64Image.substring(0, 100), '...'); // Log 100 ký tự đầu để kiểm tra
-
     // Hiển thị ảnh chụp
     img.src = base64Data;
     img.style.display = 'block';
@@ -1000,9 +664,7 @@ captureButton.addEventListener('click', () => {
 if (!imageContainer.contains(img)) {
     imageContainer.appendChild(img); // Đảm bảo ảnh nằm trong `#imageContainer`
 }
-
 });
-
 document.getElementById('deleteAllBtn').addEventListener('click', () => {
     // Xóa ảnh được hiển thị
     const img = document.getElementById('capturedImage');
@@ -1011,13 +673,11 @@ document.getElementById('deleteAllBtn').addEventListener('click', () => {
         img.style.display = 'none'; // Ẩn ảnh
     }
     base64Image = ''; // Xóa dữ liệu base64 của ảnh
-
     // Xóa bài giải hiển thị
     const resultDiv = document.getElementById('result');
     if (resultDiv) {
         resultDiv.innerHTML = ''; // Xóa nội dung bài giải
     }
-
     // Thông báo hành động hoàn thành
     alert('Đã xóa tất cả ảnh và bài giải.');
 });
@@ -1031,27 +691,22 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
         alert('Vui lòng nhập mã học sinh.');
         return;
     }
-
     try {
         const response = await fetch(sheetUrl);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-
         const text = await response.text();
         const jsonDataMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/);
         if (!jsonDataMatch) {
             throw new Error('Không thể phân tích dữ liệu từ Google Sheet.');
         }
-
         const jsonData = JSON.parse(jsonDataMatch[1]);
         const rows = jsonData.table.rows;
-
         if (!rows || rows.length === 0) {
             alert('Google Sheet không chứa dữ liệu lịch sử.');
             return;
         }
-
         // Lọc thông tin theo mã học sinh
         const studentData = rows.find(row => {
             const sheetId = (row.c[0]?.v || '').toString().trim();
@@ -1062,12 +717,10 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
             alert(`Không tìm thấy lịch sử cho mã học sinh: ${studentId}`);
             return;
         }
-
         // Hiển thị tiến độ
         document.getElementById('progressContainer').style.display = 'block';
         document.getElementById('completedExercises').textContent = studentData.c[2]?.v || '0'; // Cột C: Số bài tập đã làm
         document.getElementById('averageScore').textContent = studentData.c[3]?.v || '0'; // Cột D: Điểm trung bình
-
         // Chuyển sang giao diện chính
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('mainContent').style.display = 'block';
@@ -1076,10 +729,8 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
         alert(`Không thể tải tiến độ học tập. Chi tiết lỗi: ${error.message}`);
     }
 });
-
 });
-
-            // Các đoạn mã ngăn chặn xem mã nguồn và bảo vệ nội dung
+       // Các đoạn mã ngăn chặn xem mã nguồn và bảo vệ nội dung
         (function() {
             // Vô hiệu hóa nhấp chuột phải
             document.addEventListener('contextmenu', function(e) {
@@ -1216,7 +867,6 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
             }
             addWatermark();
         })();
-
     </script>
 </body>
 </html>
