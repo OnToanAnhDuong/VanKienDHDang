@@ -1,3 +1,4 @@
+/* Cài đặt chung */
 body {
     font-family: Arial, sans-serif;
     line-height: 1.6;
@@ -7,8 +8,10 @@ body {
 h2 {
     margin-top: 20px;
     margin-bottom: 10px;
+    text-align: center;
 }
 
+/* Danh sách bài tập */
 #exerciseGrid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
@@ -33,6 +36,7 @@ h2 {
     color: #fff;
 }
 
+/* Các nút và phần điều khiển */
 .controls {
     display: flex;
     justify-content: space-between;
@@ -61,15 +65,21 @@ h2 {
     background-color: #0056b3;
 }
 
-#problemText {
+/* Hiển thị đề bài */
+#problemContainer {
     margin-top: 20px;
+}
+
+#problemText {
     padding: 15px;
     border: 1px solid #ddd;
     border-radius: 5px;
     background-color: #f9f9f9;
     min-height: 100px;
+    white-space: pre-wrap;
 }
 
+/* Upload file */
 .file-upload {
     margin-top: 20px;
     display: flex;
@@ -103,14 +113,17 @@ h2 {
     background-color: #0056b3;
 }
 
+/* Kết quả */
 #result {
     margin-top: 20px;
     padding: 15px;
     border: 1px solid #ddd;
     border-radius: 5px;
     background-color: #f8f8f8;
+    white-space: pre-wrap;
 }
 
+/* Camera */
 #cameraContainer {
     margin-top: 20px;
     text-align: center;
@@ -120,6 +133,8 @@ h2 {
     width: 100%;
     max-width: 400px;
     height: auto;
+    border: 1px solid #ddd;
+    border-radius: 5px;
 }
 
 #captureButton {
@@ -134,4 +149,19 @@ h2 {
 
 #captureButton:hover {
     background-color: #0056b3;
+}
+
+/* Định dạng bổ sung */
+#loginContainer {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#mainContent {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
 }
