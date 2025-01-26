@@ -794,4 +794,58 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
             }
             addWatermark();
         })();
-  
+  // URL truy cập sheet dưới dạng public JSON
+const sheetUrl = `https://spreadsheets.google.com/feeds/cells/${SHEET_ID}/${SHEET_NAME}/public/values?alt=json`;
+
+// Hàm lấy dữ liệu từ Google Sheets
+function getExercisesData() {
+    fetch(sheetUrl)
+        .then(response => response.json())
+        .then(data => {
+            const rows = data.feed.entry;
+            const exercises = [];
+
+            // Xử lý dữ liệu từ Google Sheets
+            rows.forEach(row => {
+                const cell = row.title.$t.split('R')[1]; // Lấy số hàng từ ô
+                const cellData = row.content.$t; // Dữ liệu ô
+                exercises.push(cellData);
+            });
+
+            // Tạo danh sách bài tập từ dữ liệu
+            createExerciseList(exercises);
+        })
+        .catch(error => console.error('Error fetching data from Google Sheets:', error));
+}
+
+// Hàm tạo danh sách bài tập
+function createExerciseList(exercises) {
+    const exerciseList = document.getElementById('exercise-list');
+    exercises.forEach((exercise, index) => {
+        const status = exercise.toLowerCase() === 'đã làm' ? 'green' : 'yellow';
+        const exerciseItem = document.createElement('div');
+        exerciseItem.classList.add('exercise-item', status);
+        exerciseItem.textContent = index + 1;
+        exerciseItem.onclick = () => selectExercise(index + 1, status);
+        exerciseList.appendChild(exerciseItem);
+    });
+}
+
+// Hàm chọn bài tập
+function selectExercise(exerciseNumber, status) {
+    if (status === 'green') {
+        const isOk = confirm('Bài tập này bạn đã giải. Bạn có muốn giải lại không?');
+        if (isOk) {
+            alert(`Hiển thị bài tập số ${exerciseNumber}`);
+            // Hiển thị bài tập cho học sinh ở đây
+        } else {
+            alert('Mời bạn chọn bài tập khác');
+        }
+    } else {
+        alert(`Hiển thị bài tập số ${exerciseNumber}`);
+        // Hiển thị bài tập cho học sinh ở đây
+    }
+}
+
+// Lấy dữ liệu từ Google Sheets khi trang tải
+getExercisesData();
