@@ -122,3 +122,23 @@ function displayProblem(index) {
 fetchProblems().then(() => {
     renderExerciseList();
 });
+let currentStudentId = null;
+
+// Xử lý sự kiện đăng nhập
+document.getElementById('loginBtn').addEventListener('click', async () => {
+    const studentIdInput = document.getElementById('studentId').value.trim();
+    if (!studentIdInput) {
+        alert('Vui lòng nhập mã học sinh.');
+        return;
+    }
+
+    currentStudentId = studentIdInput;
+
+    // Ẩn phần đăng nhập, hiển thị phần bài tập
+    document.getElementById('loginContainer').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+
+    // Tải danh sách bài tập từ Google Sheets
+    await fetchProblems();
+    renderExerciseList();
+});
