@@ -18,6 +18,7 @@ const API_KEYS = [
 let problems = [];
 let currentKeyIndex = 0;
 let currentStudentId = null;
+let base64Image = '';
 
 // Chọn API Key tiếp theo
 function getNextApiKey() {
@@ -44,6 +45,32 @@ async function fetchProblems() {
     } catch (error) {
         console.error('Error fetching problems:', error);
     }
+}
+
+// Hiển thị danh sách bài tập
+function renderExerciseList() {
+    const exerciseGrid = document.getElementById('exerciseGrid');
+    exerciseGrid.innerHTML = ''; // Xóa nội dung cũ
+
+    problems.forEach((problem) => {
+        const exerciseBox = document.createElement('div');
+        exerciseBox.className = 'exercise-box';
+        exerciseBox.textContent = problem.index;
+
+        // Thêm sự kiện khi nhấn vào ô bài tập
+        exerciseBox.addEventListener('click', () => {
+            displayProblem(problem);
+            exerciseBox.classList.add('completed'); // Đổi màu ô đã làm
+        });
+
+        exerciseGrid.appendChild(exerciseBox);
+    });
+}
+
+// Hiển thị bài tập
+function displayProblem(problem) {
+    const problemText = document.getElementById('problemText');
+    problemText.textContent = problem.problem; // Hiển thị đề bài
 }
 
 // Gửi yêu cầu đến API Gemini để chấm bài hoặc gợi ý
@@ -77,48 +104,6 @@ async function callGeminiApi(requestBody) {
     throw new Error('All API keys have been exhausted or are invalid.');
 }
 
-// Hiển thị danh sách bài tập
-function renderExerciseList() {
-    const exerciseGrid = document.getElementById('exerciseGrid');
-    exerciseGrid.innerHTML = ''; // Xóa nội dung cũ
-
-    if (problems.length === 0) {
-        exerciseGrid.textContent = 'Không có bài tập nào để hiển thị.';
-        return;
-    }
-
-    problems.forEach((problem, index) => {
-        const exerciseBox = document.createElement('div');
-        exerciseBox.textContent = `Bài ${problem.index}`;
-        exerciseBox.style.border = '1px solid #ddd';
-        exerciseBox.style.borderRadius = '5px';
-        exerciseBox.style.padding = '10px';
-        exerciseBox.style.textAlign = 'center';
-        exerciseBox.style.cursor = 'pointer';
-        exerciseBox.style.backgroundColor = '#f0ad4e'; // Màu cam: chưa làm
-        exerciseBox.style.color = '#000';
-
-        // Thêm sự kiện click để hiển thị bài tập
-        exerciseBox.addEventListener('click', () => {
-            displayProblem(index);
-            exerciseBox.style.backgroundColor = '#5cb85c'; // Màu xanh: đã làm
-            exerciseBox.style.color = '#fff';
-        });
-
-        exerciseGrid.appendChild(exerciseBox);
-    });
-}
-
-// Hiển thị bài tập theo chỉ số
-function displayProblem(index) {
-    if (problems[index]) {
-        const problemText = problems[index].problem;
-        document.getElementById('problemText').innerHTML = problemText.replace(/\n/g, '<br>');
-    } else {
-        document.getElementById('problemText').textContent = 'Không tìm thấy bài tập.';
-    }
-}
-
 // Xử lý sự kiện đăng nhập
 document.getElementById('loginBtn').addEventListener('click', async () => {
     const studentIdInput = document.getElementById('studentId').value.trim();
@@ -129,7 +114,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 
     currentStudentId = studentIdInput;
 
-    // Ẩn phần đăng nhập, hiển thị phần bài tập
+    // Hiển thị danh sách bài tập
     document.getElementById('loginContainer').style.display = 'none';
     document.getElementById('mainContent').style.display = 'block';
 
@@ -138,7 +123,44 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
     renderExerciseList();
 });
 
-// Gọi hàm khi tải xong danh sách bài tập
-fetchProblems().then(() => {
+// Chấm bài và gửi kết quả
+async function gradeSubmission() {
+    const problemText = document.getElementById('problemText').textContent;
+    if (!problemText) {
+        alert('Vui lòng chọn bài tập trước khi chấm bài.');
+        return;
+    }
+
+    if (!base64Image) {
+        alert('Vui lòng tải hoặc chụp ảnh bài làm.');
+        return;
+    }
+
+    const requestBody = {
+        contents: [
+            {
+                parts: [
+                    { text: `Đề bài: ${problemText}\nBài làm:` },
+                    { inline_data: { mime_type: 'image/jpeg', data: base64Image } }
+                ]
+            }
+        ]
+    };
+
+    try {
+        const response = await callGeminiApi(requestBody);
+        const resultDiv = document.getElementById('result');
+        resultDiv.textContent = `Kết quả: ${JSON.stringify(response)}`;
+    } catch (error) {
+        console.error('Error grading submission:', error);
+        alert('Lỗi khi chấm bài. Vui lòng thử lại.');
+    }
+}
+
+// Sự kiện chấm bài
+document.getElementById('submitBtn').addEventListener('click', gradeSubmission);
+
+// Gọi hàm để hiển thị danh sách bài tập khi tải trang
+document.addEventListener('DOMContentLoaded', () => {
     renderExerciseList();
 });
