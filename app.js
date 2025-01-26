@@ -109,31 +109,51 @@ async function gradeWithGemini(base64Image, problemText, studentId) {
 }
 
 document.getElementById('loginBtn').addEventListener('click', async () => {
-    const studentId = document.getElementById('studentId').value.trim();
-    if (studentId) {
-        try {
-            const response = await fetch(SHEET_URL);
-            const text = await response.text();
-            const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\((.*)\)/)[1]);
-            const studentExists = jsonData.table.rows.some(row => row.c[0]?.v?.toString() === studentId);
+    const studentIdInput = document.getElementById('studentId').value.trim();
+    if (!studentIdInput) {
+        alert('Vui lòng nhập mã học sinh.');
+        return;
+    }
 
-            if (studentExists) {
-                currentStudentId = studentId;
-                document.getElementById('loginContainer').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
-                await fetchProblems();
-                alert('Đăng nhập thành công!');
-            } else {
-                alert('Mã học sinh không tồn tại. Vui lòng kiểm tra lại.');
-            }
-        } catch (error) {
-            console.error('Lỗi khi kiểm tra mã học sinh:', error);
-            alert('Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại sau.');
+    const progressUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=StudentProgress&tqx=out:json`;
+    try {
+        const response = await fetch(progressUrl);
+        if (!response.ok) {
+            throw new Error(`Không thể truy cập dữ liệu từ Google Sheets: ${response.statusText}`);
         }
-    } else {
-        alert('Vui lòng nhập mã học sinh');
+
+        const text = await response.text();
+        const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\((.*)\)/)[1]);
+        const rows = jsonData.table.rows;
+
+        // Kiểm tra ID học sinh trong Google Sheets
+        const studentData = rows.find(row => row.c[0]?.v?.toString().trim() === studentIdInput);
+        if (!studentData) {
+            alert(`Mã học sinh "${studentIdInput}" không tồn tại.`);
+            return;
+        }
+
+        // Nếu hợp lệ, cập nhật giao diện
+        currentStudentId = studentIdInput;
+        const completed = studentData.c[1]?.v || 0; // Số bài đã hoàn thành
+        const average = studentData.c[2]?.v || 0;   // Điểm trung bình
+
+        document.getElementById('completedExercises').textContent = completed;
+        document.getElementById('averageScore').textContent = average.toFixed(2);
+
+        document.getElementById('loginContainer').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+
+        await fetchProblems(); // Tải danh sách bài tập
+        renderExerciseList();  // Hiển thị danh sách bài tập
+
+        alert(`Chào mừng học sinh ${studentIdInput}. Bạn đã hoàn thành ${completed} bài với điểm trung bình là ${average.toFixed(2)}.`);
+    } catch (error) {
+        console.error('Lỗi khi đăng nhập:', error);
+        alert('Đã xảy ra lỗi khi đăng nhập. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.');
     }
 });
+
 
 document.getElementById('selectProblemBtn').addEventListener('click', () => {
     const problemIndex = document.getElementById('problemIndexInput').value;
