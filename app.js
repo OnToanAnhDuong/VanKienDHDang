@@ -654,7 +654,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
         }
 	// Tải tiến độ từ localStorage
 currentStudentId = studentId; // Lưu ID học sinh hiện tại
-studentProgress = loadStudentProgress(currentStudentId); // Tải tiến độ làm bài từ localStorage
+studentProgress = loadStudentProgress(studentId); // Tải tiến độ làm bài từ localStorage
 fetchExerciseData(); // Hiển thị danh sách bài tập dựa trên tiến độ
         // Hiển thị tiến độ
         document.getElementById('progressContainer').style.display = 'block';
