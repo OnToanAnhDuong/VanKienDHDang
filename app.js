@@ -151,12 +151,13 @@ async function gradeWithGemini(base64Image, problemText, studentId) {
             throw new Error('Không nhận được phản hồi hợp lệ từ API');
         }
         const studentAnswer = response.match(/Bài làm của học sinh: ([\s\S]*?)(?=\nLời giải chi tiết:)/)?.[1]?.trim() || '';
-        const feedback = response.replace(/Bài làm của học sinh: [\s\S]*?\n/, '');
+        const feedback = response.match(/Lời giải chi tiết:[\s\S]*?Chấm điểm:/)?.[0]?.trim() || 'Không có lời giải chi tiết';
         const score = parseFloat(response.match(/Điểm số: (\d+(\.\d+)?)/)?.[1] || '0');
-        return { studentAnswer, feedback, score };
+        const suggestions = response.match(/Đề xuất cải thiện:[\s\S]*/)?.[0]?.trim() || 'Không có đề xuất cải thiện';
+        return { studentAnswer, feedback, score, suggestions };
     } catch (error) {
         console.error('Lỗi:', error);
-        return { studentAnswer: '', feedback: `Đã xảy ra lỗi: ${error.message}`, score: 0 };
+        return { studentAnswer: '', feedback: `Đã xảy ra lỗi: ${error.message}`, score: 0, suggestions: '' };
     }
 }
 
@@ -180,22 +181,23 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
         const reader = new FileReader();
         reader.onload = async () => {
             base64Image = reader.result.split(',')[1];
-            const { studentAnswer, feedback, score } = await gradeWithGemini(base64Image, problemText, currentStudentId);
-            displayGradingResult(studentAnswer, feedback, score);
+            const { studentAnswer, feedback, score, suggestions } = await gradeWithGemini(base64Image, problemText, currentStudentId);
+            displayGradingResult(studentAnswer, feedback, score, suggestions);
         };
         reader.readAsDataURL(file);
     } else {
-        const { studentAnswer, feedback, score } = await gradeWithGemini(base64Image, problemText, currentStudentId);
-        displayGradingResult(studentAnswer, feedback, score);
+        const { studentAnswer, feedback, score, suggestions } = await gradeWithGemini(base64Image, problemText, currentStudentId);
+        displayGradingResult(studentAnswer, feedback, score, suggestions);
     }
 });
 
 // Hiển thị kết quả chấm bài
-function displayGradingResult(studentAnswer, feedback, score) {
+function displayGradingResult(studentAnswer, feedback, score, suggestions) {
     const resultDiv = document.getElementById('result');
     resultDiv.innerHTML = `
         <div><strong>Bài làm của học sinh:</strong> ${studentAnswer}</div>
-        <div><strong>Nhận xét:</strong> ${feedback}</div>
+        <div><strong>Lời giải chi tiết:</strong><pre>${feedback}</pre></div>
         <div><strong>Điểm số:</strong> ${score}/10</div>
+        <div><strong>Đề xuất cải thiện:</strong><pre>${suggestions}</pre></div>
     `;
 }
