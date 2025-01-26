@@ -19,6 +19,7 @@ let problems = [];
 let currentKeyIndex = 0;
 let currentStudentId = null;
 let base64Image = '';
+let cameraStream = null;
 
 // Chọn API Key tiếp theo
 function getNextApiKey() {
@@ -123,6 +124,30 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
     renderExerciseList();
 });
 
+// Xử lý nút chụp ảnh
+async function startCamera() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        cameraStream = stream;
+        const video = document.getElementById('cameraStream');
+        video.srcObject = stream;
+    } catch (error) {
+        console.error('Error starting camera:', error);
+        alert('Không thể truy cập camera.');
+    }
+}
+
+document.getElementById('captureButton').addEventListener('click', () => {
+    const video = document.getElementById('cameraStream');
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext('2d');
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
+    alert('Ảnh đã được chụp.');
+});
+
 // Chấm bài và gửi kết quả
 async function gradeSubmission() {
     const problemText = document.getElementById('problemText').textContent;
@@ -157,10 +182,38 @@ async function gradeSubmission() {
     }
 }
 
-// Sự kiện chấm bài
-document.getElementById('submitBtn').addEventListener('click', gradeSubmission);
+// Gợi ý bài tập
+async function getHint() {
+    const problemText = document.getElementById('problemText').textContent;
+    if (!problemText) {
+        alert('Vui lòng chọn bài tập để nhận gợi ý.');
+        return;
+    }
 
-// Gọi hàm để hiển thị danh sách bài tập khi tải trang
-document.addEventListener('DOMContentLoaded', () => {
+    const requestBody = {
+        contents: [
+            {
+                parts: [
+                    { text: `Đề bài: ${problemText}\nHãy đưa ra gợi ý cho bài toán này.` }
+                ]
+            }
+        ]
+    };
+
+    try {
+        const response = await callGeminiApi(requestBody);
+        alert(`Gợi ý: ${response.contents[0].parts[0].text}`);
+    } catch (error) {
+        console.error('Error getting hint:', error);
+        alert('Lỗi khi lấy gợi ý. Vui lòng thử lại.');
+    }
+}
+
+document.getElementById('submitBtn').addEventListener('click', gradeSubmission);
+document.getElementById('hintBtn').addEventListener('click', getHint);
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await fetchProblems();
     renderExerciseList();
+    startCamera();
 });
