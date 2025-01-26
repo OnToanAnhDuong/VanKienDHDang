@@ -76,7 +76,7 @@ function displayProblem(problem) {
 
 // Gửi yêu cầu đến API Gemini để chấm bài hoặc gợi ý
 async function callGeminiApi(requestBody) {
-    const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent';
+    const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-002:generateContent';
     let attempts = 0;
 
     while (attempts < API_KEYS.length) {
@@ -105,59 +105,63 @@ async function callGeminiApi(requestBody) {
     throw new Error('All API keys have been exhausted or are invalid.');
 }
 
-// Xử lý sự kiện đăng nhập
-document.getElementById('loginBtn').addEventListener('click', async () => {
-    const studentIdInput = document.getElementById('studentId').value.trim();
-    if (!studentIdInput) {
-        alert('Vui lòng nhập mã học sinh.');
-        return;
-    }
+// Hàm chấm bài với nội dung tiếng Việt
+async function gradeWithGemini(base64Image, problemText, studentId) {
+    const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-002:generateContent';
+    const promptText = `
+    Học sinh: ${studentId}
+    Đề bài:
+    ${problemText}
+     Hãy thực hiện các bước sau:
+    1. Nhận diện và gõ lại bài làm của học sinh từ hình ảnh thành văn bản một cách chính xác, tất cả công thức Toán viết dưới dạng Latex, bọc trong dấu $, không tự suy luận nội dung hình ảnh, chỉ gõ lại chính xác các nội dung nhận diện được từ hình ảnh.
+    2. Giải bài toán và cung cấp lời giải chi tiết cho từng phần, lời giải phù hợp học sinh lớp 7 học theo chương trình 2018.
+    3. So sánh bài làm của học sinh với đáp án đúng, chấm chi tiết từng bước làm đến kết quả.
+    4. Chấm điểm bài làm của học sinh trên thang điểm 10, cho 0 điểm với bài giải không đúng yêu cầu đề bài. Giải thích chi tiết cách tính điểm cho từng phần.
+    5. Đưa ra nhận xét chi tiết và đề xuất cải thiện.
+    6. Kiểm tra lại kết quả chấm điểm và đảm bảo tính nhất quán giữa bài làm, lời giải, và điểm số.
+    Kết quả trả về cần có định dạng sau:
+    Bài làm của học sinh: [Bài làm được nhận diện từ hình ảnh]
+    Lời giải chi tiết: [Lời giải từng bước]
+    Chấm điểm: [Giải thích cách chấm điểm cho từng phần]
+    Điểm số: [Điểm trên thang điểm 10]
+    Nhận xét: [Nhận xét chi tiết]
+    Đề xuất cải thiện: [Các đề xuất cụ thể]
+    Chú ý:
+    - Bài làm của học sinh không khớp với đề bài thì cho 0 điểm.
+    - Điểm số phải là một số từ 0 đến 10, có thể có một chữ số thập phân.
+    - Hãy đảm bảo tính chính xác và khách quan trong việc chấm điểm và nhận xét.
+    - Nếu có sự không nhất quán giữa bài làm và điểm số, hãy giải thích rõ lý do.
+    `;
 
-    currentStudentId = studentIdInput;
+    const requestBody = {
+        contents: [
+            {
+                parts: [
+                    { text: promptText },
+                    { inline_data: { mime_type: 'image/jpeg', data: base64Image } }
+                ]
+            }
+        ]
+    };
 
-    // Hiển thị danh sách bài tập
-    document.getElementById('loginContainer').style.display = 'none';
-    document.getElementById('mainContent').style.display = 'block';
-
-    // Tải danh sách bài tập từ Google Sheets
-    await fetchProblems();
-    renderExerciseList();
-});
-
-// Xử lý nút chụp ảnh
-async function startCamera() {
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        cameraStream = stream;
-        const video = document.getElementById('cameraStream');
-        video.srcObject = stream;
+        const data = await callGeminiApi(requestBody);
+        const response = data?.contents?.[0]?.parts?.[0]?.text;
+        if (!response) {
+            throw new Error('Không nhận được phản hồi hợp lệ từ API');
+        }
+        const studentAnswer = response.match(/Bài làm của học sinh: ([\s\S]*?)(?=\nLời giải chi tiết:)/)?.[1]?.trim() || '';
+        const feedback = response.replace(/Bài làm của học sinh: [\s\S]*?\n/, '');
+        const score = parseFloat(response.match(/Điểm số: (\d+(\.\d+)?)/)?.[1] || '0');
+        return { studentAnswer, feedback, score };
     } catch (error) {
-        console.error('Error starting camera:', error);
-        alert('Không thể truy cập camera.');
+        console.error('Lỗi:', error);
+        return { studentAnswer: '', feedback: `Đã xảy ra lỗi: ${error.message}`, score: 0 };
     }
 }
 
-document.getElementById('captureButton').addEventListener('click', () => {
-    const video = document.getElementById('cameraStream');
-    if (!video || !video.videoWidth || !video.videoHeight) {
-        alert('Camera chưa sẵn sàng. Vui lòng thử lại.');
-        return;
-    }
-
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const context = canvas.getContext('2d');
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
-    alert('Ảnh đã được chụp.');
-
-    document.getElementById('capturedImagePreview').src = canvas.toDataURL('image/jpeg');
-    document.getElementById('capturedImagePreview').style.display = 'block';
-});
-
-// Chấm bài và gửi kết quả
-async function gradeSubmission() {
+// Xử lý nút chấm bài
+document.getElementById('submitBtn').addEventListener('click', async () => {
     const problemText = document.getElementById('problemText').textContent.trim();
     const studentFileInput = document.getElementById('studentImage');
 
@@ -174,70 +178,24 @@ async function gradeSubmission() {
     if (!base64Image && studentFileInput && studentFileInput.files.length > 0) {
         const file = studentFileInput.files[0];
         const reader = new FileReader();
-        reader.onload = () => {
+        reader.onload = async () => {
             base64Image = reader.result.split(',')[1];
-            submitGrading(problemText);
+            const { studentAnswer, feedback, score } = await gradeWithGemini(base64Image, problemText, currentStudentId);
+            displayGradingResult(studentAnswer, feedback, score);
         };
         reader.readAsDataURL(file);
     } else {
-        submitGrading(problemText);
+        const { studentAnswer, feedback, score } = await gradeWithGemini(base64Image, problemText, currentStudentId);
+        displayGradingResult(studentAnswer, feedback, score);
     }
-}
-
-async function submitGrading(problemText) {
-    const requestBody = {
-        contents: [
-            {
-                parts: [
-                    { text: `Đề bài: ${problemText}\nBài làm:` },
-                    { inline_data: { mime_type: 'image/jpeg', data: base64Image } }
-                ]
-            }
-        ]
-    };
-
-    try {
-        const response = await callGeminiApi(requestBody);
-        const resultDiv = document.getElementById('result');
-        resultDiv.textContent = `Kết quả: ${JSON.stringify(response)}`;
-    } catch (error) {
-        console.error('Error grading submission:', error);
-        alert('Lỗi khi chấm bài. Vui lòng thử lại.');
-    }
-}
-
-// Gợi ý bài tập
-async function getHint() {
-    const problemText = document.getElementById('problemText').textContent.trim();
-    if (!problemText) {
-        alert('Vui lòng chọn bài tập để nhận gợi ý.');
-        return;
-    }
-
-    const requestBody = {
-        contents: [
-            {
-                parts: [
-                    { text: `Đề bài: ${problemText}\nHãy đưa ra gợi ý cho bài toán này.` }
-                ]
-            }
-        ]
-    };
-
-    try {
-        const response = await callGeminiApi(requestBody);
-        alert(`Gợi ý: ${response.contents[0].parts[0].text}`);
-    } catch (error) {
-        console.error('Error getting hint:', error);
-        alert('Lỗi khi lấy gợi ý. Vui lòng thử lại.');
-    }
-}
-
-document.getElementById('submitBtn').addEventListener('click', gradeSubmission);
-document.getElementById('hintBtn').addEventListener('click', getHint);
-
-document.addEventListener('DOMContentLoaded', async () => {
-    await fetchProblems();
-    renderExerciseList();
-    startCamera();
 });
+
+// Hiển thị kết quả chấm bài
+function displayGradingResult(studentAnswer, feedback, score) {
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = `
+        <div><strong>Bài làm của học sinh:</strong> ${studentAnswer}</div>
+        <div><strong>Nhận xét:</strong> ${feedback}</div>
+        <div><strong>Điểm số:</strong> ${score}/10</div>
+    `;
+}
