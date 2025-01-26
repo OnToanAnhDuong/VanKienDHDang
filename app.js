@@ -17,6 +17,7 @@ const API_KEYS = [
 
 let problems = [];
 let currentKeyIndex = 0;
+let currentStudentId = null;
 
 // Chọn API Key tiếp theo
 function getNextApiKey() {
@@ -118,12 +119,6 @@ function displayProblem(index) {
     }
 }
 
-// Gọi hàm khi tải xong danh sách bài tập
-fetchProblems().then(() => {
-    renderExerciseList();
-});
-let currentStudentId = null;
-
 // Xử lý sự kiện đăng nhập
 document.getElementById('loginBtn').addEventListener('click', async () => {
     const studentIdInput = document.getElementById('studentId').value.trim();
@@ -140,5 +135,10 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 
     // Tải danh sách bài tập từ Google Sheets
     await fetchProblems();
+    renderExerciseList();
+});
+
+// Gọi hàm khi tải xong danh sách bài tập
+fetchProblems().then(() => {
     renderExerciseList();
 });
