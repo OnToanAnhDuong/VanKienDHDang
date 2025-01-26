@@ -76,8 +76,26 @@
         });
 
         async function checkStudentId(studentId) {
-            const validIds = ['12345', '67890']; // Thay bằng danh sách mã hợp lệ thật
-            return validIds.includes(studentId);
+            const SHEET_ID = '175acnaYklfdCc_UJ7B3LJgNaUJpfrIENxn6LN76QADM'; // Thay bằng ID Google Sheet của bạn
+            const SHEET_NAME = 'StudentData'; // Thay bằng tên sheet của bạn
+            const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tq=&tqx=out:json`;
+
+            try {
+                const response = await fetch(SHEET_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const text = await response.text();
+                const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\((.*)\)/)[1]);
+                const rows = jsonData.table.rows;
+
+                const studentExists = rows.some(row => row.c[0]?.v?.toString() === studentId);
+                return studentExists;
+            } catch (error) {
+                console.error('Lỗi khi kiểm tra mã học sinh:', error);
+                return false;
+            }
         }
 
         async function fetchProblems() {
