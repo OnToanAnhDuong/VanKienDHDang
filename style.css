@@ -1,0 +1,75 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 30px;
+    line-height: 1.6;
+}
+h1, h2 {
+    color: #333;
+    text-align: center;
+}
+label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+}
+input[type="text"], input[type="file"] {
+    width: 100%;
+    margin-bottom: 15px;
+    padding: 8px;
+    box-sizing: border-box;
+}
+button {
+    padding: 10px 20px;
+    background-color: #5cb85c;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 10px auto;
+    display: block;
+}
+button:hover {
+    background-color: #4cae4c;
+}
+#result, #hintText {
+    margin-top: 20px;
+    white-space: pre-wrap;
+    background-color: #f8f8f8;
+    padding: 15px;
+    border-radius: 5px;
+}
+#problemText {
+    font-size: 18px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    min-height: 100px;
+    white-space: pre-wrap;
+}
+#problemContainer, #progressContainer {
+    position: relative;
+    margin-bottom: 20px;
+}
+#randomProblemBtn, #loginBtn {
+    display: block;
+    width: 30%;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+#randomProblemBtn:hover, #loginBtn:hover {
+    background-color: #0056b3;
+}
+#progress {
+    background-color: #e9ecef;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
