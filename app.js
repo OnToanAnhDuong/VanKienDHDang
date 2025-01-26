@@ -1,6 +1,6 @@
 const SHEET_ID = '175acnaYklfdCc_UJ7B3LJgNaUJpfrIENxn6LN76QADM';
 const SHEET_NAME = 'Toan6';
-const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tq=&tqx=out:json`;
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tqx=out:json`;
 
 const API_KEYS = [
     'AIzaSyCzh6doVzV7Dbmbz60B9pNUQIel2N6KEcI',
