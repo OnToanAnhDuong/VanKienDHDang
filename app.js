@@ -139,7 +139,7 @@ async function startCamera() {
 
 document.getElementById('captureButton').addEventListener('click', () => {
     const video = document.getElementById('cameraStream');
-    if (!video.videoWidth || !video.videoHeight) {
+    if (!video || !video.videoWidth || !video.videoHeight) {
         alert('Camera chưa sẵn sàng. Vui lòng thử lại.');
         return;
     }
@@ -151,19 +151,33 @@ document.getElementById('captureButton').addEventListener('click', () => {
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
     alert('Ảnh đã được chụp.');
+
+    document.getElementById('capturedImagePreview').src = canvas.toDataURL('image/jpeg');
+    document.getElementById('capturedImagePreview').style.display = 'block';
 });
 
 // Chấm bài và gửi kết quả
 async function gradeSubmission() {
-    const problemText = document.getElementById('problemText').textContent;
+    const problemText = document.getElementById('problemText').textContent.trim();
+    const studentFileInput = document.getElementById('studentImage');
+
     if (!problemText) {
         alert('Vui lòng chọn bài tập trước khi chấm bài.');
         return;
     }
 
-    if (!base64Image) {
+    if (!base64Image && (!studentFileInput || !studentFileInput.files.length)) {
         alert('Vui lòng tải hoặc chụp ảnh bài làm.');
         return;
+    }
+
+    if (!base64Image) {
+        const file = studentFileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = () => {
+            base64Image = reader.result.split(',')[1];
+        };
+        reader.readAsDataURL(file);
     }
 
     const requestBody = {
@@ -189,7 +203,7 @@ async function gradeSubmission() {
 
 // Gợi ý bài tập
 async function getHint() {
-    const problemText = document.getElementById('problemText').textContent;
+    const problemText = document.getElementById('problemText').textContent.trim();
     if (!problemText) {
         alert('Vui lòng chọn bài tập để nhận gợi ý.');
         return;
