@@ -48,6 +48,48 @@
         </div>
     </div>
 
+    <script>
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const studentId = document.getElementById('studentId').value.trim();
+
+            if (!studentId) {
+                alert('Vui lòng nhập mã học sinh.');
+                return;
+            }
+
+            try {
+                const isValidStudent = await checkStudentId(studentId);
+                if (isValidStudent) {
+                    currentStudentId = studentId;
+                    document.getElementById('loginContainer').style.display = 'none';
+                    document.getElementById('mainContent').style.display = 'block';
+
+                    await fetchProblems();
+                    renderExerciseList();
+                } else {
+                    alert('Mã học sinh không hợp lệ. Vui lòng thử lại.');
+                }
+            } catch (error) {
+                console.error('Lỗi khi đăng nhập:', error);
+                alert('Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại sau.');
+            }
+        });
+
+        async function checkStudentId(studentId) {
+            const validIds = ['12345', '67890']; // Thay bằng danh sách mã hợp lệ thật
+            return validIds.includes(studentId);
+        }
+
+        async function fetchProblems() {
+            // Logic tải bài tập từ Google Sheet hoặc nguồn dữ liệu khác
+            console.log('Fetching problems...');
+        }
+
+        function renderExerciseList() {
+            // Logic hiển thị danh sách bài tập
+            console.log('Rendering exercise list...');
+        }
+    </script>
     <script src="app.js" defer></script>
 </body>
 </html>
