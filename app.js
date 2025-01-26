@@ -171,15 +171,20 @@ async function gradeSubmission() {
         return;
     }
 
-    if (!base64Image) {
+    if (!base64Image && studentFileInput && studentFileInput.files.length > 0) {
         const file = studentFileInput.files[0];
         const reader = new FileReader();
         reader.onload = () => {
             base64Image = reader.result.split(',')[1];
+            submitGrading(problemText);
         };
         reader.readAsDataURL(file);
+    } else {
+        submitGrading(problemText);
     }
+}
 
+async function submitGrading(problemText) {
     const requestBody = {
         contents: [
             {
