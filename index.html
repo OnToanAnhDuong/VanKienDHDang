@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ÔN LUYỆN TOÁN THCS - TRUNG TÂM ÁNH DƯƠNG</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="app.js"></script>
+</head>
+<body>
+    <h1>ÔN LUYỆN TOÁN LỚP 6 - THẦY GIÁO TÔN THANH CHƯƠNG</h1>
+    <div id="exerciseListContainer"></div>
+    <div id="loginContainer">
+        <input type="text" id="studentId" placeholder="Nhập mã học sinh">
+        <button id="loginBtn">Đăng nhập</button>
+    </div>
+    <div id="mainContent" style="display: none;">
+        <div id="topControls">
+            <input type="number" id="problemIndexInput" placeholder="Nhập số thứ tự (1, 2, ...)">
+            <button id="selectProblemBtn">Hiển thị bài tập</button>
+            <button id="randomProblemBtn">Lấy bài tập ngẫu nhiên</button>
+            <div id="progressContainer" style="display: none;">
+                <p>
+                    Số bài: <span id="completedExercises">0</span> |
+                    Điểm TB: <span id="averageScore">0</span>
+                </p>
+            </div>
+        </div>
+        <div id="problemContainer">
+            <label for="problemText">Đề bài:</label>
+            <div id="problemText"></div>
+        </div>
+        <div id="bottomControls">
+            <button id="submitBtn">Chấm Bài</button>
+            <button id="hintBtn">Gợi ý</button>
+            <button id="deleteAllBtn">Xóa tất cả</button>
+        </div>
+        <div id="result"></div>
+        <label for="studentImage">Ảnh bài làm của học sinh:</label>
+        <input type="file" id="studentImage" accept="image/*">
+    </div>
+</body>
+</html>
