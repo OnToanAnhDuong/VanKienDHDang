@@ -3,46 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ÔN LUYỆN TOÁN THCS - TRUNG TÂM ÁNH DƯƠNG</title>
+    <title>Ôn luyện Toán</title>
     <link rel="stylesheet" href="style.css">
-    <script defer src="app.js"></script>
 </head>
 <body>
-    <h1>ÔN LUYỆN TOÁN LỚP 6 - THẦY GIÁO TÔN THANH CHƯƠNG</h1>
-    <div id="exerciseListContainer"></div>
     <div id="loginContainer">
+        <h2>Đăng nhập</h2>
         <input type="text" id="studentId" placeholder="Nhập mã học sinh">
         <button id="loginBtn">Đăng nhập</button>
     </div>
+
     <div id="mainContent" style="display: none;">
-        <div id="topControls">
-            <input type="number" id="problemIndexInput" placeholder="Nhập số thứ tự (1, 2, ...)" min="1">
+        <h2>Danh sách bài tập</h2>
+        <div id="exerciseGrid"></div>
+
+        <div class="controls">
+            <input type="number" id="problemIndexInput" placeholder="Nhập số bài">
             <button id="selectProblemBtn">Hiển thị bài tập</button>
             <button id="randomProblemBtn">Lấy bài tập ngẫu nhiên</button>
-        </div>
-
-        <div id="problemContainer">
-            <label for="problemText">Đề bài:</label>
-            <div id="problemText"></div>
-        </div>
-
-        <div id="exerciseList">
-            <h2>Danh sách bài tập:</h2>
-            <div id="exerciseGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 10px;">
-                <!-- Các ô bài tập sẽ được tạo động tại đây -->
+            <div>
+                Số bài: <span id="completedExercises">0</span> |
+                Tổng điểm: <span id="totalScore">0</span>
             </div>
         </div>
 
-        <div id="bottomControls">
-            <button id="submitBtn">Chấm Bài</button>
-            <button id="hintBtn">Gợi ý</button>
-            <button id="deleteAllBtn">Xóa tất cả</button>
+        <div id="problemContainer">
+            <h2>Đề bài</h2>
+            <div id="problemText"></div>
+        </div>
+
+        <div class="file-upload">
+            <label for="studentImage">Chọn ảnh bài làm:</label>
+            <input type="file" id="studentImage" accept="image/*">
+            <button id="submitBtn">Chấm bài</button>
+            <button id="deleteAllBtn">Xóa nội dung</button>
         </div>
 
         <div id="result"></div>
 
-        <label for="studentImage">Ảnh bài làm của học sinh:</label>
-        <input type="file" id="studentImage" accept="image/*">
+        <div id="cameraContainer">
+            <h2>Chụp ảnh bài làm</h2>
+            <video id="cameraStream" autoplay playsinline></video>
+            <button id="captureButton">Chụp ảnh</button>
+        </div>
     </div>
+
+    <script src="app.js" defer></script>
 </body>
 </html>
