@@ -72,3 +72,40 @@ document.getElementById('selectProblemBtn').addEventListener('click', () => {
         alert('Số thứ tự không hợp lệ.');
     }
 });
+const exerciseGrid = document.getElementById('exerciseGrid');
+
+// Hàm tạo danh sách bài tập
+function renderExerciseList() {
+    exerciseGrid.innerHTML = ''; // Xóa nội dung cũ
+
+    if (problems.length === 0) {
+        exerciseGrid.textContent = 'Danh sách bài tập chưa được tải.';
+        return;
+    }
+
+    problems.forEach((problem, index) => {
+        const exerciseBox = document.createElement('div');
+        exerciseBox.textContent = `Bài ${problem.index}`;
+        exerciseBox.style.border = '1px solid #ddd';
+        exerciseBox.style.borderRadius = '5px';
+        exerciseBox.style.padding = '10px';
+        exerciseBox.style.textAlign = 'center';
+        exerciseBox.style.cursor = 'pointer';
+        exerciseBox.style.backgroundColor = '#f0ad4e'; // Màu cam: chưa làm
+        exerciseBox.style.color = '#000';
+
+        // Thêm sự kiện khi nhấn vào ô bài tập
+        exerciseBox.addEventListener('click', () => {
+            displayProblem(index);
+            exerciseBox.style.backgroundColor = '#5cb85c'; // Màu xanh: đã làm
+            exerciseBox.style.color = '#fff';
+        });
+
+        exerciseGrid.appendChild(exerciseBox);
+    });
+}
+
+// Gọi renderExerciseList sau khi tải xong danh sách bài tập
+fetchProblems().then(() => {
+    renderExerciseList();
+});
