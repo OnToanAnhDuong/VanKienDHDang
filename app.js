@@ -658,59 +658,60 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 });
 
 // Hàm lấy dữ liệu từ Google Sheets
-function getExercisesData() {
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tq=&tqx=out:json`;
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            const rows = data.feed.entry;
-            const exercises = [];
+async function fetchExerciseData() {
+    try {
+        const response = await fetch(SHEET_URL);
+        const text = await response.text();
+        const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/)[1]);
+        const rows = jsonData.table.rows;
 
-            // Xử lý dữ liệu từ Google Sheets
-            rows.forEach(row => {
-                const cell = row.title.$t.split('R')[1]; // Lấy số hàng từ ô
-                const cellData = row.content.$t; // Dữ liệu ô
-                exercises.push(cellData);
-            });
+        // Xử lý dữ liệu từ Google Sheets
+        const exercises = rows.map(row => ({
+            id: row.c[0]?.v || '0', // Mã bài tập
+            name: row.c[1]?.v || 'Không có tên', // Tên bài tập
+            status: row.c[2]?.v || 'Chưa làm' // Trạng thái bài tập
+        }));
 
-            // Tạo danh sách bài tập từ dữ liệu
-            createExerciseList(exercises);
-        })
-        .catch(error => console.error('Error fetching data from Google Sheets:', error));
-}
-
-// Hàm tạo danh sách bài tập
-function createExerciseList(exercises) {
-    const exerciseList = document.getElementById('exercise-list');
-    exercises.forEach((exercise, index) => {
-        const status = exercise.toLowerCase() === 'đã làm' ? 'green' : 'yellow';
-        const exerciseItem = document.createElement('div');
-        exerciseItem.classList.add('exercise-item', status);
-        exerciseItem.textContent = index + 1;
-        exerciseItem.onclick = () => selectExercise(index + 1, status);
-        exerciseList.appendChild(exerciseItem);
-    });
-}
-
-// Hàm chọn bài tập
-function selectExercise(exerciseNumber, status) {
-    if (status === 'green') {
-        const isOk = confirm('Bài tập này bạn đã giải. Bạn có muốn giải lại không?');
-        if (isOk) {
-            alert(`Hiển thị bài tập số ${exerciseNumber}`);
-            // Hiển thị bài tập cho học sinh ở đây
-        } else {
-            alert('Mời bạn chọn bài tập khác');
-        }
-    } else {
-        alert(`Hiển thị bài tập số ${exerciseNumber}`);
-        // Hiển thị bài tập cho học sinh ở đây
+        renderExerciseList(exercises); // Gọi hàm hiển thị danh sách bài tập
+    } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu từ Google Sheets:', error);
     }
 }
 
-// Lấy dữ liệu từ Google Sheets khi trang tải
-getExercisesData();
-	
+// Hàm hiển thị danh sách bài tập
+function renderExerciseList(exercises) {
+    const exerciseListContainer = document.getElementById('exercise-list');
+    exerciseListContainer.innerHTML = ''; // Xóa nội dung cũ (nếu có)
+
+    exercises.forEach(exercise => {
+        const exerciseDiv = document.createElement('div');
+        exerciseDiv.classList.add('exercise-item');
+        exerciseDiv.classList.add(exercise.status.toLowerCase() === 'đã làm' ? 'completed' : 'not-completed');
+        exerciseDiv.textContent = exercise.id; // Hiển thị mã bài tập
+
+        // Xử lý sự kiện khi người dùng nhấp vào bài tập
+        exerciseDiv.onclick = () => handleExerciseClick(exercise);
+
+        exerciseListContainer.appendChild(exerciseDiv);
+    });
+}
+
+// Hàm xử lý khi người dùng nhấp vào bài tập
+function handleExerciseClick(exercise) {
+    if (exercise.status.toLowerCase() === 'đã làm') {
+        const confirmRedo = confirm(`Bài tập "${exercise.name}" đã được làm. Bạn có muốn làm lại không?`);
+        if (confirmRedo) {
+            alert(`Hiển thị bài tập: ${exercise.name}`);
+            // Thêm logic hiển thị chi tiết bài tập nếu cần
+        }
+    } else {
+        alert(`Hiển thị bài tập: ${exercise.name}`);
+        // Thêm logic hiển thị chi tiết bài tập nếu cần
+    }
+}
+
+// Gọi hàm fetchExerciseData khi trang tải
+fetchExerciseData();
 });
        // Các đoạn mã ngăn chặn xem mã nguồn và bảo vệ nội dung
         (function() {
