@@ -698,15 +698,17 @@ function renderExerciseList(exercises) {
 
 // Hàm xử lý khi người dùng nhấp vào bài tập
 function handleExerciseClick(exercise) {
+    const problemTextContainer = document.getElementById("problemText"); // Vị trí hiển thị đề bài
+
     if (exercise.status.toLowerCase() === 'đã làm') {
         const confirmRedo = confirm(`Bài tập "${exercise.name}" đã được làm. Bạn có muốn làm lại không?`);
         if (confirmRedo) {
-            alert(`Hiển thị bài tập: ${exercise.name}`);
-            // Thêm logic hiển thị chi tiết bài tập nếu cần
+            // Hiển thị nội dung bài tập trong problemTextContainer
+            problemTextContainer.textContent = `Bài tập: ${exercise.name}\nMô tả: Đây là nội dung bài tập số ${exercise.id}`;
         }
     } else {
-        alert(`Hiển thị bài tập: ${exercise.name}`);
-        // Thêm logic hiển thị chi tiết bài tập nếu cần
+        // Hiển thị nội dung bài tập trong problemTextContainer
+        problemTextContainer.textContent = `Bài tập: ${exercise.name}\nMô tả: Đây là nội dung bài tập số ${exercise.id}`;
     }
 }
 
