@@ -656,12 +656,10 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
         alert(`Không thể tải tiến độ học tập. Chi tiết lỗi: ${error.message}`);
     }
 });
-	 // URL truy cập sheet dưới dạng public JSON
-const sheetUrl = `https://spreadsheets.google.com/feeds/cells/${SHEET_ID}/${SHEET_NAME}/public/values?alt=json`;
 
 // Hàm lấy dữ liệu từ Google Sheets
 function getExercisesData() {
-    fetch(sheetUrl)
+    fetch(SHEET_URL)
         .then(response => response.json())
         .then(data => {
             const rows = data.feed.entry;
