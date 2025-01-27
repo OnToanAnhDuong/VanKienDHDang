@@ -46,7 +46,8 @@
 
 	async function loadProgressFromGitHub(studentId) {
     try {
-        console.log('Gọi GitHub API để tải tiến độ...');
+        console.log(`Gọi GitHub API để tải tiến độ cho học sinh: ${studentId}`);
+        
         const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${PROGRESS_FILE}`, {
             headers: {
                 Authorization: `token ${GITHUB_TOKEN}`,
@@ -64,14 +65,24 @@
         const fileContent = JSON.parse(atob(data.content)); // Giải mã nội dung file
         console.log('Nội dung file progress.json:', fileContent);
 
-        progress = fileContent[studentId] || {}; // Tiến độ của học sinh theo ID
+        // Lấy tiến độ của học sinh
+        if (!fileContent[studentId]) {
+            console.warn(`Không tìm thấy tiến độ cho studentId: ${studentId}`);
+            alert(`Không tìm thấy tiến độ cho mã học sinh: ${studentId}`);
+            return;
+        }
+
+        progress = fileContent[studentId];
         console.log('Tiến độ của học sinh:', progress);
 
-        displayProblems(); // Hiển thị giao diện bài tập
+        // Hiển thị giao diện bài tập
+        displayProblems();
     } catch (error) {
         console.error('Lỗi khi tải tiến độ:', error);
+        alert(`Đã xảy ra lỗi khi tải tiến độ: ${error.message}`);
     }
 }
+
 
         function getNextApiKey() {
             const key = API_KEYS[currentKeyIndex];
