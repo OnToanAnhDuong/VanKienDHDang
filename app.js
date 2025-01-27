@@ -747,18 +747,25 @@ async function saveProgressToGitHub(studentId) {
     await saveProgressToGitHub(currentStudentId); // Lưu tiến độ lên GitHub
 }
 	function handleProblemClick(problemIndex) {
-    if (progress[problemIndex]) {
-        const confirmRedo = confirm('Bài đã được chấm, bạn có muốn làm lại không?');
-        if (!confirmRedo) return;
+    // Kiểm tra trạng thái bài tập
+    const progress = {}; // Đây là nơi bạn lưu trạng thái bài tập
+    const isCompleted = progress[problemIndex] || false;
+
+    if (isCompleted) {
+        const confirmRedo = confirm(`Bài tập ${problemIndex} đã được làm. Bạn có muốn làm lại không?`);
+        if (!confirmRedo) {
+            return; // Không làm lại, thoát hàm
+        }
     }
 
-    // Hiển thị bài tập (ví dụ)
-    const selectedProblem = problems.find(p => p.index === problemIndex);
-    if (selectedProblem) {
-        document.getElementById('problemText').textContent = selectedProblem.problem;
-    }
+    // Xử lý logic khi chọn bài tập
+    console.log(`Bắt đầu làm bài tập ${problemIndex}`);
+    alert(`Đang mở bài tập ${problemIndex}`);
+
+    // Hiển thị đề bài hoặc thực hiện các thao tác tiếp theo
+    displayProblemByIndex(problemIndex);
 }
-});
+
        // Các đoạn mã ngăn chặn xem mã nguồn và bảo vệ nội dung
         (function() {
             // Vô hiệu hóa nhấp chuột phải
