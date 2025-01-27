@@ -1,14 +1,9 @@
-
 /* script.js */
         const SHEET_ID = '175acnaYklfdCc_UJ7B3LJgNaUJpfrIENxn6LN76QADM';
         const SHEET_NAME = 'Toan6';
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tq=&tqx=out:json`;
         const API_KEYS = ['AIzaSyCzh6doVzV7Dbmbz60B9pNUQIel2N6KEcI', 'AIzaSyBVQcUrVTtwKeAAsFR8ENM8-kgZl8CsUM0', 'AIzaSyCmY4FdhZ4qSN6HhBtldgQgSNbDlZ4J1ug', 'AIzaSyAkX3rMYxN_-aO95QKMPy-OLIV62esaANU', 'AIzaSyDtmacgYKn1PBgCVWkReF9Kyn6vC4DKZmg', 'AIzaSyAusgvzZkUPT9lHoB7vzZW_frx-Z0xIxU8', 'AIzaSyBBNxoJh9UZXbc4shgRc7nUiJKya3JR2eI', 'AIzaSyAru8K7uUTD85FOCmrNESQmQYh-gfFCOZ8', 'AIzaSyAkDbRl7iBYWhc00KZ9dZL1_l0cobcC0ak', 'AIzaSyAJ9DpLy4uLfbFoyh7IhW9N0uk9YkBEUY4'];        
-        const GITHUB_REPO = 'OnToanAnhDuong/WEBMOi'; // Thay 'username' bằng tên GitHub của bạn
-	const GITHUB_TOKEN = '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';   // Thay bằng token của bạn
-	const PROGRESS_FILE = 'progress.json';          // Tên file JSON lưu tiến độ
-	let progress = {};                              // Biến lưu tiến trình
-	let currentKeyIndex = 0;
+        let currentKeyIndex = 0;
         let problems = [];
         let currentProblem = null;
 	let completedProblems = 0;  // Khai báo số bài đã giải
@@ -19,71 +14,6 @@
         let currentHint = '';
         let studentName = '';
 	let currentProblemIndex = 0; // Bắt đầu từ bài đầu tiên
-	function displayProblems() {
-    const container = document.getElementById('problemListContainer');
-    if (!container) {
-        console.error('Không tìm thấy #problemListContainer');
-        return;
-    }
-
-    container.innerHTML = ''; // Xóa nội dung cũ
-
-    // Tạo các ô bài tập
-    for (let i = 1; i <= 50; i++) { // Giả sử có 50 bài tập
-        const item = document.createElement('div');
-        item.className = `progress-item ${Math.random() > 0.5 ? 'green' : 'yellow'}`; // Ngẫu nhiên trạng thái
-        item.textContent = i; // Số thứ tự bài tập
-
-        // Thêm sự kiện click cho từng ô bài tập
-        item.addEventListener('click', () => {
-            handleProblemClick(i); // Gọi hàm xử lý khi bấm vào ô
-        });
-
-        container.appendChild(item); // Thêm ô vào container
-    }
-}
-
-
-	async function loadProgressFromGitHub(studentId) {
-    try {
-        console.log(`Gọi GitHub API để tải tiến độ cho học sinh: ${studentId}`);
-        
-        const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${PROGRESS_FILE}`, {
-            headers: {
-                Authorization: `token ${GITHUB_TOKEN}`,
-            },
-        });
-
-        console.log('Trạng thái phản hồi từ GitHub API:', response.status);
-        if (!response.ok) {
-            throw new Error(`Không thể tải tiến độ từ GitHub. Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log('Dữ liệu thô từ GitHub:', data);
-
-        const fileContent = JSON.parse(atob(data.content)); // Giải mã nội dung file
-        console.log('Nội dung file progress.json:', fileContent);
-
-        // Lấy tiến độ của học sinh
-        if (!fileContent[studentId]) {
-            console.warn(`Không tìm thấy tiến độ cho studentId: ${studentId}`);
-            alert(`Không tìm thấy tiến độ cho mã học sinh: ${studentId}`);
-            return;
-        }
-
-        progress = fileContent[studentId];
-        console.log('Tiến độ của học sinh:', progress);
-
-        // Hiển thị giao diện bài tập
-        displayProblems();
-    } catch (error) {
-        console.error('Lỗi khi tải tiến độ:', error);
-        alert(`Đã xảy ra lỗi khi tải tiến độ: ${error.message}`);
-    }
-}
-
-
         function getNextApiKey() {
             const key = API_KEYS[currentKeyIndex];
             currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
@@ -117,7 +47,7 @@
             throw new Error('All API keys have been exhausted or are invalid.');
         }
 
-  async function fetchProblems() {
+      async function fetchProblems() {
     try {
         const response = await fetch(SHEET_URL);
         if (!response.ok) {
@@ -126,16 +56,10 @@
         const text = await response.text();
         const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/)[1]);
         problems = parseGoogleSheetData(jsonData);
-
-        if (!problems || problems.length === 0) {
-            console.warn('Không có bài tập nào trong Google Sheet.');
-            document.getElementById('problemText').textContent = 'Không có bài tập nào được tìm thấy.';
-        } else {
-            console.log('Đã tải xong bài tập:', problems);
-        }
+        console.log('Đã tải xong bài tập:', problems);
     } catch (error) {
         console.error('Lỗi khi tải bài toán:', error);
-        document.getElementById('problemText').textContent = 'Lỗi khi tải bài toán. Vui lòng thử lại sau.';
+        document.getElementById('problemText').textContent = 'Không thể tải bài toán.';
     }
 }
 function parseGoogleSheetData(jsonData) {
@@ -182,6 +106,16 @@ function displayProblemByIndex(index) {
         function formatProblemText(problemText) {
             return problemText.replace(/\n/g, '<br>').replace(/([a-d]\))/g, '<br>$1');
         }
+function checkCameraAccess() {
+    navigator.mediaDevices.enumerateDevices()
+        .then(devices => {
+            const videoDevices = devices.filter(device => device.kind === 'videoinput');
+            if (videoDevices.length === 0) {
+                alert('Không tìm thấy thiết bị camera.');
+            }
+        })
+        .catch(error => console.error('Lỗi khi kiểm tra thiết bị camera:', error));
+}
        // Hàm cập nhật số bài đã làm và điểm trung bình
         function updateProgress(newScore) {
             completedProblems++;
@@ -207,7 +141,22 @@ function displayProblemByIndex(index) {
             }
         });
         // Lấy bài toán ngẫu nhiên
-   async function generateSimilarProblem(originalProblem) {
+        async function fetchProblems() {
+    try {
+        const response = await fetch(SHEET_URL);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const text = await response.text();
+        const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/)[1]);
+        problems = parseGoogleSheetData(jsonData);
+        console.log('Đã tải xong bài tập:', problems);
+    } catch (error) {
+        console.error('Error fetching problems:', error);
+        document.getElementById('problemText').textContent = 'Lỗi khi tải bài toán. Vui lòng thử lại sau.';
+    }
+}
+async function generateSimilarProblem(originalProblem) {
             const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent';
             const promptText = `
             Bạn hãy tạo một bài toán tương tự bài sau bằng cách thay đổi các số liệu một cách phù hợp, nhưng giữ nguyên cấu trúc và dạng toán:
@@ -441,66 +390,7 @@ function displayProblemByIndex(index) {
             overlay.appendChild(messageBox);
             document.body.appendChild(overlay);
         }
-    document.getElementById('loginBtn').addEventListener('click', handleLogin);
-async function handleLogin() {
-    const studentId = document.getElementById('studentId').value.trim();
 
-    // Bước 1: Kiểm tra nếu mã học sinh rỗng
-    if (!studentId) {
-        alert('Vui lòng nhập mã học sinh.');
-        return;
-    }
-
-    // Bước 2: Lấy dữ liệu từ Google Sheets
-    const sheetId = '165WblAAVsv_aUyDKjrdkMSeQ5zaLiUGNoW26ZFt5KWU'; // ID Google Sheet
-    const sheetName = 'StudentProgress'; // Tên tab trong Google Sheet
-    const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?sheet=${sheetName}&tqx=out:json`;
-
-    try {
-        const response = await fetch(sheetUrl);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        // Phân tích dữ liệu Google Sheets
-        const text = await response.text();
-        const jsonDataMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/);
-        if (!jsonDataMatch) {
-            throw new Error('Không thể phân tích dữ liệu từ Google Sheet.');
-        }
-
-        const jsonData = JSON.parse(jsonDataMatch[1]);
-        const rows = jsonData.table.rows;
-
-        // Bước 3: Tìm mã học sinh
-        const studentData = rows.find(row => (row.c[0]?.v || '').toString().trim() === studentId);
-        if (!studentData) {
-            alert(`Không tìm thấy lịch sử cho mã học sinh: ${studentId}`);
-            return;
-        }
-
-        // Bước 4: Hiển thị thông tin tiến độ
-        document.getElementById('progressContainer').style.display = 'block';
-        document.getElementById('completedExercises').textContent = studentData.c[2]?.v || '0'; // Số bài đã làm
-        document.getElementById('averageScore').textContent = studentData.c[3]?.v || '0'; // Điểm trung bình
-
-        // Bước 5: Chuyển giao diện
-        document.getElementById('loginContainer').style.display = 'none'; // Ẩn giao diện đăng nhập
-        document.getElementById('mainContent').style.display = 'block';  // Hiển thị giao diện chính
-
-        // Bước 6: Cập nhật thông tin học sinh
-        currentStudentId = studentId; // Lưu mã học sinh hiện tại
-        studentName = studentData.c[3]?.v || ''; // Lưu tên học sinh
-        alert(`Chào mừng ${studentName}, bạn đã đăng nhập thành công!`);
-	await loadProgressFromGitHub(studentId); // Tải tiến độ từ GitHub
-	await fetchProblems();
-	displayProblems(); // Hiển thị danh sách bài tập
-	await updateProgress(0);
-    } catch (error) {
-        console.error('Lỗi khi xử lý đăng nhập:', error);
-        alert(`Đã xảy ra lỗi khi đăng nhập: ${error.message}`);
-    }
-}
     document.getElementById('submitBtn').addEventListener('click', async () => {
     const problemText = document.getElementById('problemText')?.innerHTML?.trim();
     const studentFileInput = document.getElementById('studentImage');
@@ -522,10 +412,6 @@ async function handleLogin() {
         document.getElementById('result').innerText = 'Đang xử lý...';
         // Gửi ảnh để chấm bài
         const { studentAnswer, feedback, score } = await gradeWithGemini(imageToProcess, problemText, currentStudentId);
-	 const problemIndex = currentProblem.index; // Lấy số thứ tự bài tập hiện tại
-        if (score > 0) { // Chỉ cập nhật nếu bài làm hợp lệ (điểm > 0)
-            await updateProgress(problemIndex);
-        }
         const submitted = await submitToGoogleForm(score, currentStudentId, problemText, studentAnswer, feedback, studentName);
         if (submitted) {
             document.getElementById('result').innerHTML = feedback;
@@ -588,7 +474,24 @@ async function handleLogin() {
                 alert("Chưa có gợi ý cho bài toán này.");
             }
         });
-       
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const studentId = document.getElementById('studentId').value.trim();
+            if (studentId) {
+                const isValidStudent = await checkStudentId(studentId);
+                if (isValidStudent) {
+                    currentStudentId = studentId;
+                    document.getElementById('loginContainer').style.display = 'none';
+                    document.getElementById('mainContent').style.display = 'block';
+                    document.getElementById('randomProblemBtn').textContent = `Lấy đề bài ngẫu nhiên (${currentStudentId})`;
+                    await fetchProblems();
+                    await updateProgress(0);
+                } else {
+                    alert('Mã học sinh không hợp lệ. Vui lòng thử lại.');
+                }
+            } else {
+                alert('Vui lòng nhập mã học sinh');
+            }
+        });
 	document.getElementById('selectProblemBtn').addEventListener('click', async () => {
     const problemIndexInput = document.getElementById('problemIndexInput').value.trim();
     // Kiểm tra xem người dùng đã nhập số thứ tự hay chưa
@@ -705,66 +608,55 @@ document.getElementById('deleteAllBtn').addEventListener('click', () => {
     // Thông báo hành động hoàn thành
     alert('Đã xóa tất cả ảnh và bài giải.');
 });
+document.getElementById('loginBtn').addEventListener('click', async () => {
+    const sheetId = '165WblAAVsv_aUyDKjrdkMSeQ5zaLiUGNoW26ZFt5KWU'; // ID Google Sheet
+    const sheetName = 'StudentProgress'; // Tên tab trong Google Sheet
+    const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?sheet=${sheetName}&tqx=out:json`;
 
-async function saveProgressToGitHub(studentId) {
+    const studentId = document.getElementById('studentId').value.trim();
+    if (!studentId) {
+        alert('Vui lòng nhập mã học sinh.');
+        return;
+    }
     try {
-        // Lấy SHA của file hiện tại (nếu không có, file sẽ được tạo mới)
-        const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${PROGRESS_FILE}`, {
-            headers: {
-                Authorization: `token ${GITHUB_TOKEN}`,
-            },
-        });
-
-        const data = await response.json();
-        const sha = data.sha; // SHA của file hiện tại
-
-        // Cập nhật tiến độ của học sinh
-        const updatedContent = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${PROGRESS_FILE}`, {
-            method: 'PUT',
-            headers: {
-                Authorization: `token ${GITHUB_TOKEN}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                message: 'Cập nhật tiến độ học sinh',
-                content: btoa(JSON.stringify({ ...JSON.parse(atob(data.content)), [studentId]: progress }, null, 2)),
-                sha: sha, // Đảm bảo ghi đè file cũ
-            }),
-        });
-
-        if (!updatedContent.ok) throw new Error('Không thể lưu tiến độ lên GitHub.');
-
-        console.log('Tiến độ đã được lưu lên GitHub.');
-    } catch (error) {
-        console.error('Lỗi khi lưu tiến độ:', error);
-    }
-}	
-
-	async function updateProgress(problemIndex) {
-    progress[problemIndex] = true; // Đánh dấu bài đã làm
-    displayProblems(); // Cập nhật giao diện
-    await saveProgressToGitHub(currentStudentId); // Lưu tiến độ lên GitHub
-}
-	function handleProblemClick(problemIndex) {
-    // Kiểm tra trạng thái bài tập
-    const progress = {}; // Đây là nơi bạn lưu trạng thái bài tập
-    const isCompleted = progress[problemIndex] || false;
-
-    if (isCompleted) {
-        const confirmRedo = confirm(`Bài tập ${problemIndex} đã được làm. Bạn có muốn làm lại không?`);
-        if (!confirmRedo) {
-            return; // Không làm lại, thoát hàm
+        const response = await fetch(sheetUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        const text = await response.text();
+        const jsonDataMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/);
+        if (!jsonDataMatch) {
+            throw new Error('Không thể phân tích dữ liệu từ Google Sheet.');
+        }
+        const jsonData = JSON.parse(jsonDataMatch[1]);
+        const rows = jsonData.table.rows;
+        if (!rows || rows.length === 0) {
+            alert('Google Sheet không chứa dữ liệu lịch sử.');
+            return;
+        }
+        // Lọc thông tin theo mã học sinh
+        const studentData = rows.find(row => {
+            const sheetId = (row.c[0]?.v || '').toString().trim();
+            return sheetId === studentId;
+        });
+
+        if (!studentData) {
+            alert(`Không tìm thấy lịch sử cho mã học sinh: ${studentId}`);
+            return;
+        }
+        // Hiển thị tiến độ
+        document.getElementById('progressContainer').style.display = 'block';
+        document.getElementById('completedExercises').textContent = studentData.c[2]?.v || '0'; // Cột C: Số bài tập đã làm
+        document.getElementById('averageScore').textContent = studentData.c[3]?.v || '0'; // Cột D: Điểm trung bình
+        // Chuyển sang giao diện chính
+        document.getElementById('loginContainer').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+    } catch (error) {
+        console.error('Lỗi khi tải dữ liệu:', error);
+        alert(`Không thể tải tiến độ học tập. Chi tiết lỗi: ${error.message}`);
     }
-
-    // Xử lý logic khi chọn bài tập
-    console.log(`Bắt đầu làm bài tập ${problemIndex}`);
-    alert(`Đang mở bài tập ${problemIndex}`);
-
-    // Hiển thị đề bài hoặc thực hiện các thao tác tiếp theo
-    displayProblemByIndex(problemIndex);
-}
-
+});
+});
        // Các đoạn mã ngăn chặn xem mã nguồn và bảo vệ nội dung
         (function() {
             // Vô hiệu hóa nhấp chuột phải
@@ -882,6 +774,7 @@ async function saveProgressToGitHub(studentId) {
                     navigator.clipboard.writeText('');
                 }
             });
+
             // Thêm watermark để ngăn chặn chụp màn hình (tùy chọn)
             function addWatermark() {
                 const watermark = document.createElement('div');
