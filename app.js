@@ -774,7 +774,6 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
                     navigator.clipboard.writeText('');
                 }
             });
-
             // Thêm watermark để ngăn chặn chụp màn hình (tùy chọn)
             function addWatermark() {
                 const watermark = document.createElement('div');
