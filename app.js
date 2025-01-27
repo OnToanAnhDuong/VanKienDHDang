@@ -18,6 +18,21 @@
         let currentHint = '';
         let studentName = '';
 	let currentProblemIndex = 0; // Bắt đầu từ bài đầu tiên
+	function displayProblems() {
+    const progressContainer = document.getElementById('progressContainer');
+    progressContainer.innerHTML = ''; // Xóa danh sách cũ
+
+    problems.forEach(problem => {
+        const item = document.createElement('div');
+        item.className = `progress-item ${progress[problem.index] ? 'green' : 'yellow'}`;
+        item.textContent = problem.index;
+
+        // Khi học sinh chọn bài
+        item.addEventListener('click', () => handleProblemClick(problem.index));
+
+        progressContainer.appendChild(item);
+    });
+}	
 	async function loadProgressFromGitHub(studentId) {
     try {
         const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${PROGRESS_FILE}`, {
@@ -712,21 +727,7 @@ async function saveProgressToGitHub(studentId) {
         console.error('Lỗi khi lưu tiến độ:', error);
     }
 }	
-function displayProblems() {
-    const progressContainer = document.getElementById('progressContainer');
-    progressContainer.innerHTML = ''; // Xóa danh sách cũ
 
-    problems.forEach(problem => {
-        const item = document.createElement('div');
-        item.className = `progress-item ${progress[problem.index] ? 'green' : 'yellow'}`;
-        item.textContent = problem.index;
-
-        // Khi học sinh chọn bài
-        item.addEventListener('click', () => handleProblemClick(problem.index));
-
-        progressContainer.appendChild(item);
-    });
-}	
 	async function updateProgress(problemIndex) {
     progress[problemIndex] = true; // Đánh dấu bài đã làm
     displayProblems(); // Cập nhật giao diện
