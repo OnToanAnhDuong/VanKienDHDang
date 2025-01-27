@@ -232,11 +232,14 @@ button.delete {
 button.delete:hover {
     background-color: #c82333;
 }
+/* Container hiển thị danh sách bài tập */
 .progress-grid {
-    display: grid; /* Sử dụng grid layout */
-    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); /* Chia thành các cột tự động */
+    display: grid; /* Kích hoạt lưới */
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); /* Tự động chia cột */
     gap: 10px; /* Khoảng cách giữa các ô */
     margin: 20px 0; /* Khoảng cách với các thành phần khác */
+    justify-items: center; /* Canh giữa các ô */
+    align-items: center; /* Canh giữa nội dung các ô */
 }
 
 .progress-item {
