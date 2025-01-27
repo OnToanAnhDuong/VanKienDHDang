@@ -235,28 +235,27 @@ button.delete:hover {
 /* Container danh sách bài tập */
 #problemListContainer {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(30px, 1fr)); /* Giảm kích thước ô tối thiểu */
-    gap: 5px; /* Giảm khoảng cách giữa các ô */
+    grid-template-columns: repeat(auto-fill, minmax(25px, 1fr)); /* Các ô tối thiểu 25px */
+    gap: 5px; /* Khoảng cách giữa các ô */
     margin-top: 20px;
     padding: 10px;
     background-color: #f9f9f9;
     border: 1px solid #ccc;
     border-radius: 5px;
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
+    width: 100%; /* Trải rộng toàn màn hình */
+    max-width: 100%; /* Không giới hạn chiều rộng */
 }
 
 /* Các ô bài tập */
 .progress-item {
-    width: 30px; /* Chiều rộng nhỏ hơn */
-    height: 30px; /* Chiều cao nhỏ hơn */
+    width: 25px; /* Chiều rộng nhỏ hơn */
+    height: 25px; /* Chiều cao nhỏ hơn */
     text-align: center;
-    line-height: 30px; /* Căn giữa nội dung dọc */
+    line-height: 25px; /* Căn giữa nội dung theo chiều dọc */
     border: 1px solid #ddd; /* Viền */
     border-radius: 3px; /* Bo góc nhỏ hơn */
     font-weight: bold;
-    font-size: 12px; /* Giảm kích thước chữ */
+    font-size: 10px; /* Giảm kích thước chữ */
     cursor: pointer;
     user-select: none;
     transition: all 0.2s ease;
@@ -276,21 +275,17 @@ button.delete:hover {
 
 /* Hiệu ứng hover */
 .progress-item:hover {
-    transform: scale(1.1);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    transform: scale(1.1); /* Phóng to nhẹ khi hover */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Tạo bóng mờ nhẹ */
 }
 
-/* Responsive: Kích thước nhỏ hơn trên màn hình hẹp */
-@media (max-width: 600px) {
-    #problemListContainer {
-        gap: 3px; /* Giảm khoảng cách giữa các ô hơn nữa */
-    }
-
+/* Responsive: Tăng kích thước một chút trên màn hình lớn */
+@media (min-width: 1200px) {
     .progress-item {
-        width: 25px; /* Rất nhỏ gọn trên màn hình nhỏ */
-        height: 25px;
-        line-height: 25px;
-        font-size: 10px;
+        width: 30px; /* Lớn hơn một chút trên màn hình rộng */
+        height: 30px;
+        line-height: 30px;
+        font-size: 12px;
     }
 }
 
