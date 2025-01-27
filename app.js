@@ -18,6 +18,26 @@
         let currentHint = '';
         let studentName = '';
 	let currentProblemIndex = 0; // Bắt đầu từ bài đầu tiên
+	async function loadProgressFromGitHub(studentId) {
+    try {
+        const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${PROGRESS_FILE}`, {
+            headers: {
+                Authorization: `token ${GITHUB_TOKEN}`,
+            },
+        });
+
+        if (!response.ok) throw new Error('Không thể tải tiến độ từ GitHub.');
+
+        const data = await response.json();
+        const fileContent = JSON.parse(atob(data.content)); // Giải mã nội dung file
+        progress = fileContent[studentId] || {}; // Tiến độ của học sinh theo ID
+
+        console.log('Tiến độ đã tải:', progress);
+        displayProblems(); // Hiển thị giao diện bài tập
+    } catch (error) {
+        console.error('Lỗi khi tải tiến độ:', error);
+    }
+}
         function getNextApiKey() {
             const key = API_KEYS[currentKeyIndex];
             currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
@@ -657,26 +677,7 @@ document.getElementById('deleteAllBtn').addEventListener('click', () => {
     // Thông báo hành động hoàn thành
     alert('Đã xóa tất cả ảnh và bài giải.');
 });
-async function loadProgressFromGitHub(studentId) {
-    try {
-        const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${PROGRESS_FILE}`, {
-            headers: {
-                Authorization: `token ${GITHUB_TOKEN}`,
-            },
-        });
 
-        if (!response.ok) throw new Error('Không thể tải tiến độ từ GitHub.');
-
-        const data = await response.json();
-        const fileContent = JSON.parse(atob(data.content)); // Giải mã nội dung file
-        progress = fileContent[studentId] || {}; // Tiến độ của học sinh theo ID
-
-        console.log('Tiến độ đã tải:', progress);
-        displayProblems(); // Hiển thị giao diện bài tập
-    } catch (error) {
-        console.error('Lỗi khi tải tiến độ:', error);
-    }
-}
 async function saveProgressToGitHub(studentId) {
     try {
         // Lấy SHA của file hiện tại (nếu không có, file sẽ được tạo mới)
