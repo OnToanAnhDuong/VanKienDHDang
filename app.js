@@ -766,7 +766,8 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c'))) {
                     e.preventDefault();
                 }
-            });		
+            });
+
             // Vô hiệu hóa phím Print Screen
             document.addEventListener('keyup', function(e) {
                 if(e.key === 'PrintScreen') {
