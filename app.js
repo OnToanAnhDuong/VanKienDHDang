@@ -474,6 +474,10 @@ async function handleLogin() {
         document.getElementById('result').innerText = 'Đang xử lý...';
         // Gửi ảnh để chấm bài
         const { studentAnswer, feedback, score } = await gradeWithGemini(imageToProcess, problemText, currentStudentId);
+	 const problemIndex = currentProblem.index; // Lấy số thứ tự bài tập hiện tại
+        if (score > 0) { // Chỉ cập nhật nếu bài làm hợp lệ (điểm > 0)
+            await updateProgress(problemIndex);
+        }
         const submitted = await submitToGoogleForm(score, currentStudentId, problemText, studentAnswer, feedback, studentName);
         if (submitted) {
             document.getElementById('result').innerHTML = feedback;
@@ -653,7 +657,91 @@ document.getElementById('deleteAllBtn').addEventListener('click', () => {
     // Thông báo hành động hoàn thành
     alert('Đã xóa tất cả ảnh và bài giải.');
 });
+async function loadProgressFromGitHub(studentId) {
+    try {
+        const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${PROGRESS_FILE}`, {
+            headers: {
+                Authorization: `token ${GITHUB_TOKEN}`,
+            },
+        });
 
+        if (!response.ok) throw new Error('Không thể tải tiến độ từ GitHub.');
+
+        const data = await response.json();
+        const fileContent = JSON.parse(atob(data.content)); // Giải mã nội dung file
+        progress = fileContent[studentId] || {}; // Tiến độ của học sinh theo ID
+
+        console.log('Tiến độ đã tải:', progress);
+        displayProblems(); // Hiển thị giao diện bài tập
+    } catch (error) {
+        console.error('Lỗi khi tải tiến độ:', error);
+    }
+}
+async function saveProgressToGitHub(studentId) {
+    try {
+        // Lấy SHA của file hiện tại (nếu không có, file sẽ được tạo mới)
+        const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${PROGRESS_FILE}`, {
+            headers: {
+                Authorization: `token ${GITHUB_TOKEN}`,
+            },
+        });
+
+        const data = await response.json();
+        const sha = data.sha; // SHA của file hiện tại
+
+        // Cập nhật tiến độ của học sinh
+        const updatedContent = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${PROGRESS_FILE}`, {
+            method: 'PUT',
+            headers: {
+                Authorization: `token ${GITHUB_TOKEN}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: 'Cập nhật tiến độ học sinh',
+                content: btoa(JSON.stringify({ ...JSON.parse(atob(data.content)), [studentId]: progress }, null, 2)),
+                sha: sha, // Đảm bảo ghi đè file cũ
+            }),
+        });
+
+        if (!updatedContent.ok) throw new Error('Không thể lưu tiến độ lên GitHub.');
+
+        console.log('Tiến độ đã được lưu lên GitHub.');
+    } catch (error) {
+        console.error('Lỗi khi lưu tiến độ:', error);
+    }
+}	
+function displayProblems() {
+    const progressContainer = document.getElementById('progressContainer');
+    progressContainer.innerHTML = ''; // Xóa danh sách cũ
+
+    problems.forEach(problem => {
+        const item = document.createElement('div');
+        item.className = `progress-item ${progress[problem.index] ? 'green' : 'yellow'}`;
+        item.textContent = problem.index;
+
+        // Khi học sinh chọn bài
+        item.addEventListener('click', () => handleProblemClick(problem.index));
+
+        progressContainer.appendChild(item);
+    });
+}	
+	async function updateProgress(problemIndex) {
+    progress[problemIndex] = true; // Đánh dấu bài đã làm
+    displayProblems(); // Cập nhật giao diện
+    await saveProgressToGitHub(currentStudentId); // Lưu tiến độ lên GitHub
+}
+	function handleProblemClick(problemIndex) {
+    if (progress[problemIndex]) {
+        const confirmRedo = confirm('Bài đã được chấm, bạn có muốn làm lại không?');
+        if (!confirmRedo) return;
+    }
+
+    // Hiển thị bài tập (ví dụ)
+    const selectedProblem = problems.find(p => p.index === problemIndex);
+    if (selectedProblem) {
+        document.getElementById('problemText').textContent = selectedProblem.problem;
+    }
+}
 });
        // Các đoạn mã ngăn chặn xem mã nguồn và bảo vệ nội dung
         (function() {
