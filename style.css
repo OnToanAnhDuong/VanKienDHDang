@@ -233,51 +233,61 @@ button.delete:hover {
     background-color: #c82333;
 }
 /* Container hiển thị danh sách bài tập */
-.progress-grid {
-    display: grid; /* Kích hoạt lưới */
-    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); /* Tự động chia cột */
+#problemListContainer {
+    display: grid; /* Hiển thị dạng lưới */
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); /* Tự động chia cột với chiều rộng tối thiểu 50px */
     gap: 10px; /* Khoảng cách giữa các ô */
-    margin: 20px 0; /* Khoảng cách với các thành phần khác */
-    justify-items: center; /* Canh giữa các ô */
-    align-items: center; /* Canh giữa nội dung các ô */
+    margin-top: 20px; /* Khoảng cách phía trên container */
+    padding: 10px; /* Khoảng cách trong container */
+    background-color: #f9f9f9; /* Màu nền nhẹ để phân biệt container */
+    border: 1px solid #ccc; /* Viền cho container */
+    border-radius: 5px; /* Bo góc container */
 }
 
+/* Ô bài tập */
 .progress-item {
-    width: 50px;
-    height: 50px;
-    text-align: center;
-    line-height: 50px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-weight: bold;
-    cursor: pointer;
-    user-select: none;
+    width: 50px; /* Chiều rộng ô bài tập */
+    height: 50px; /* Chiều cao ô bài tập */
+    text-align: center; /* Canh giữa nội dung theo chiều ngang */
+    line-height: 50px; /* Căn giữa nội dung theo chiều dọc */
+    border: 1px solid #ddd; /* Viền ô bài tập */
+    border-radius: 5px; /* Bo góc ô bài tập */
+    font-weight: bold; /* Chữ đậm */
+    font-size: 14px; /* Kích thước chữ */
+    cursor: pointer; /* Thay đổi con trỏ khi hover */
+    user-select: none; /* Vô hiệu hóa chọn văn bản */
+    transition: all 0.2s ease; /* Hiệu ứng mượt khi thay đổi trạng thái */
 }
 
+/* Màu vàng cho bài chưa làm */
 .progress-item.yellow {
-    background-color: yellow;
-    color: black;
+    background-color: yellow; /* Nền màu vàng */
+    color: black; /* Chữ màu đen */
 }
 
+/* Màu xanh cho bài đã làm */
 .progress-item.green {
-    background-color: green;
-    color: white;
+    background-color: green; /* Nền màu xanh */
+    color: white; /* Chữ màu trắng */
 }
 
-#result {
-    margin-top: 20px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f9f9f9;
+/* Hiệu ứng hover cho ô bài tập */
+.progress-item:hover {
+    transform: scale(1.1); /* Phóng to nhẹ khi hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Tạo bóng mờ */
 }
 
-#problemText {
-    font-size: 16px;
-    margin-bottom: 20px;
-    padding: 10px;
-    background-color: #eef;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+/* Định dạng responsive: Giảm khoảng cách khi màn hình nhỏ */
+@media (max-width: 600px) {
+    #problemListContainer {
+        gap: 5px; /* Giảm khoảng cách giữa các ô */
+    }
+
+    .progress-item {
+        width: 40px; /* Giảm kích thước ô bài tập */
+        height: 40px;
+        line-height: 40px;
+        font-size: 12px; /* Giảm kích thước chữ */
+    }
 }
 
