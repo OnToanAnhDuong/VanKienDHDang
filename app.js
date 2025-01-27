@@ -441,6 +441,7 @@ async function handleLogin() {
         currentStudentId = studentId; // Lưu mã học sinh hiện tại
         studentName = studentData.c[3]?.v || ''; // Lưu tên học sinh
         alert(`Chào mừng ${studentName}, bạn đã đăng nhập thành công!`);
+	await loadProgressFromGitHub(studentId); // Tải tiến độ từ GitHub
 	await fetchProblems();
 	await updateProgress(0);
     } catch (error) {
