@@ -232,3 +232,49 @@ button.delete {
 button.delete:hover {
     background-color: #c82333;
 }
+.progress-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.progress-item {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    line-height: 50px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+}
+
+.progress-item.yellow {
+    background-color: yellow;
+    color: black;
+}
+
+.progress-item.green {
+    background-color: green;
+    color: white;
+}
+
+#result {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+#problemText {
+    font-size: 16px;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #eef;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
