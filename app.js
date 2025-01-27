@@ -72,19 +72,7 @@ function parseGoogleSheetData(jsonData) {
         function formatProblemText(problemText) {
             return problemText.replace(/\n/g, '<br>').replace(/([a-d]\))/g, '<br>$1');
         }
-       // Hàm cập nhật số bài đã làm và điểm trung bình
-        function updateProgress(newScore) {
-            completedProblems++;
-            totalScore += newScore;
-            let averageScore = totalScore / completedProblems;
-            document.getElementById("completedProblems").textContent = completedProblems;
-            document.getElementById("averageScore").textContent = averageScore.toFixed(2);
-        }
-        // Xử lý khi học sinh giải bài và bấm chấm bài
-        document.getElementById('submitBtn').addEventListener('click', function() {
-            // Giả sử điểm của bài hiện tại đã được tính là currentProblemScore
-            updateProgress(currentProblemScore);
-        });
+     
         // Xử lý khi học sinh đăng nhập
         document.getElementById('loginBtn').addEventListener('click', function() {
             const studentId = document.getElementById('studentId').value;
