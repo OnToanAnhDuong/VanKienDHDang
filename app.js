@@ -19,32 +19,29 @@
         let studentName = '';
 	let currentProblemIndex = 0; // Bắt đầu từ bài đầu tiên
 	function displayProblems() {
-    const problemListContainer = document.getElementById('problemListContainer');
-
-    if (!problemListContainer) {
-        console.error('Không tìm thấy container #problemListContainer');
+    const container = document.getElementById('problemListContainer');
+    if (!container) {
+        console.error('Không tìm thấy #problemListContainer');
         return;
     }
 
-    problemListContainer.innerHTML = ''; // Xóa nội dung cũ
+    container.innerHTML = ''; // Xóa nội dung cũ
 
-    if (!problems || problems.length === 0) {
-        problemListContainer.textContent = 'Không có bài tập nào để hiển thị.';
-        return;
-    }
-
-    problems.forEach(problem => {
+    // Tạo các ô bài tập
+    for (let i = 1; i <= 50; i++) { // Giả sử có 50 bài tập
         const item = document.createElement('div');
-        item.className = `progress-item ${progress[problem.index] ? 'green' : 'yellow'}`;
-        item.textContent = problem.index; // Số thứ tự bài tập
+        item.className = `progress-item ${Math.random() > 0.5 ? 'green' : 'yellow'}`; // Ngẫu nhiên trạng thái
+        item.textContent = i; // Số thứ tự bài tập
 
-        // Thêm sự kiện khi nhấn vào ô bài tập
-        item.addEventListener('click', () => handleProblemClick(problem.index));
-        problemListContainer.appendChild(item);
-    });
+        // Thêm sự kiện click cho từng ô bài tập
+        item.addEventListener('click', () => {
+            handleProblemClick(i); // Gọi hàm xử lý khi bấm vào ô
+        });
 
-    console.log('Danh sách bài tập đã được hiển thị:', problems);
+        container.appendChild(item); // Thêm ô vào container
+    }
 }
+
 
 	async function loadProgressFromGitHub(studentId) {
     try {
