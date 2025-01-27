@@ -69,13 +69,93 @@ function parseGoogleSheetData(jsonData) {
         problem: row.c[1]?.v.replace(/\r\n|\r|\n/g, '\n') || '' // Cột đề bài
     })).filter(item => item.problem && item.index);
 }
+function displayNextProblem() {
+    if (problems.length > 0) {
+        // Nếu chỉ số hiện tại vượt quá số bài, quay lại bài đầu tiên (tuỳ chọn)
+        if (currentProblemIndex >= problems.length) {
+            currentProblemIndex = 0;
+        }
+
+        // Lấy bài tập theo thứ tự
+        currentProblem = problems[currentProblemIndex];
+        currentProblemIndex++; // Tăng chỉ số lên bài tiếp theo
+
+        document.getElementById('problemText').innerHTML = formatProblemText(currentProblem.problem);
+        MathJax.typesetPromise([document.getElementById('problemText')]).catch(function (err) {
+            console.error('MathJax rendering error:', err);
+        });
+    } else {
+        document.getElementById('problemText').textContent = 'Không có bài toán nào.';
+    }
+}
+function displayProblemByIndex(index) {
+    if (problems.length === 0) {
+        document.getElementById('problemText').textContent = 'Danh sách bài tập chưa được tải. Vui lòng thử lại.';
+        return;
+    }
+    const selectedProblem = problems.find(problem => parseInt(problem.index) === parseInt(index));
+    if (selectedProblem) {
+        document.getElementById('problemText').innerHTML = formatProblemText(selectedProblem.problem);
+        MathJax.typesetPromise([document.getElementById('problemText')]).catch(function (err) {
+            console.error('MathJax rendering error:', err);
+        });
+    } else {
+        document.getElementById('problemText').textContent = `Không tìm thấy bài tập với số thứ tự ${index}.`;
+    }
+}
         function formatProblemText(problemText) {
             return problemText.replace(/\n/g, '<br>').replace(/([a-d]\))/g, '<br>$1');
         }
-     
+function checkCameraAccess() {
+    navigator.mediaDevices.enumerateDevices()
+        .then(devices => {
+            const videoDevices = devices.filter(device => device.kind === 'videoinput');
+            if (videoDevices.length === 0) {
+                alert('Không tìm thấy thiết bị camera.');
+            }
+        })
+        .catch(error => console.error('Lỗi khi kiểm tra thiết bị camera:', error));
+}
+       // Hàm cập nhật số bài đã làm và điểm trung bình
+        function updateProgress(newScore) {
+            completedProblems++;
+            totalScore += newScore;
+            let averageScore = totalScore / completedProblems;
+            document.getElementById("completedProblems").textContent = completedProblems;
+            document.getElementById("averageScore").textContent = averageScore.toFixed(2);
+        }
+        // Xử lý khi học sinh giải bài và bấm chấm bài
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            // Giả sử điểm của bài hiện tại đã được tính là currentProblemScore
+            updateProgress(currentProblemScore);
+        });
         // Xử lý khi học sinh đăng nhập
-
+        document.getElementById('loginBtn').addEventListener('click', function() {
+            const studentId = document.getElementById('studentId').value;
+            if (studentId) {
+                currentStudentId = studentId;
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+            } else {
+                alert('Vui lòng nhập mã học sinh');
+            }
+        });
         // Lấy bài toán ngẫu nhiên
+        async function fetchProblems() {
+    try {
+        const response = await fetch(SHEET_URL);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const text = await response.text();
+        const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/)[1]);
+        problems = parseGoogleSheetData(jsonData);
+        console.log('Đã tải xong bài tập:', problems);
+    } catch (error) {
+        console.error('Error fetching problems:', error);
+        document.getElementById('problemText').textContent = 'Lỗi khi tải bài toán. Vui lòng thử lại sau.';
+    }
+}
 async function generateSimilarProblem(originalProblem) {
             const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent';
             const promptText = `
@@ -394,6 +474,24 @@ async function generateSimilarProblem(originalProblem) {
                 alert("Chưa có gợi ý cho bài toán này.");
             }
         });
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const studentId = document.getElementById('studentId').value.trim();
+            if (studentId) {
+                const isValidStudent = await checkStudentId(studentId);
+                if (isValidStudent) {
+                    currentStudentId = studentId;
+                    document.getElementById('loginContainer').style.display = 'none';
+                    document.getElementById('mainContent').style.display = 'block';
+                    document.getElementById('randomProblemBtn').textContent = `Lấy đề bài ngẫu nhiên (${currentStudentId})`;
+                    await fetchProblems();
+                    await updateProgress(0);
+                } else {
+                    alert('Mã học sinh không hợp lệ. Vui lòng thử lại.');
+                }
+            } else {
+                alert('Vui lòng nhập mã học sinh');
+            }
+        });
 	document.getElementById('selectProblemBtn').addEventListener('click', async () => {
     const problemIndexInput = document.getElementById('problemIndexInput').value.trim();
     // Kiểm tra xem người dùng đã nhập số thứ tự hay chưa
@@ -510,68 +608,54 @@ document.getElementById('deleteAllBtn').addEventListener('click', () => {
     // Thông báo hành động hoàn thành
     alert('Đã xóa tất cả ảnh và bài giải.');
 });
-document.getElementById('loginBtn').addEventListener('click', handleLogin);
-async function handleLogin() {
-    const studentId = document.getElementById('studentId').value.trim();
+document.getElementById('loginBtn').addEventListener('click', async () => {
+    const sheetId = '165WblAAVsv_aUyDKjrdkMSeQ5zaLiUGNoW26ZFt5KWU'; // ID Google Sheet
+    const sheetName = 'StudentProgress'; // Tên tab trong Google Sheet
+    const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?sheet=${sheetName}&tqx=out:json`;
 
+    const studentId = document.getElementById('studentId').value.trim();
     if (!studentId) {
         alert('Vui lòng nhập mã học sinh.');
         return;
     }
-
-    const sheetId = '165WblAAVsv_aUyDKjrdkMSeQ5zaLiUGNoW26ZFt5KWU';
-    const sheetName = 'StudentProgress';
-    const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?sheet=${sheetName}&tqx=out:json`;
-
     try {
         const response = await fetch(sheetUrl);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-
         const text = await response.text();
         const jsonDataMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/);
         if (!jsonDataMatch) {
             throw new Error('Không thể phân tích dữ liệu từ Google Sheet.');
         }
-
         const jsonData = JSON.parse(jsonDataMatch[1]);
         const rows = jsonData.table.rows;
+        if (!rows || rows.length === 0) {
+            alert('Google Sheet không chứa dữ liệu lịch sử.');
+            return;
+        }
+        // Lọc thông tin theo mã học sinh
+        const studentData = rows.find(row => {
+            const sheetId = (row.c[0]?.v || '').toString().trim();
+            return sheetId === studentId;
+        });
 
-        const studentData = rows.find(row => (row.c[0]?.v || '').toString().trim() === studentId);
         if (!studentData) {
             alert(`Không tìm thấy lịch sử cho mã học sinh: ${studentId}`);
             return;
         }
-
+        // Hiển thị tiến độ
         document.getElementById('progressContainer').style.display = 'block';
-        document.getElementById('completedExercises').textContent = studentData.c[2]?.v || '0';
-        document.getElementById('averageScore').textContent = studentData.c[3]?.v || '0';
-
+        document.getElementById('completedExercises').textContent = studentData.c[2]?.v || '0'; // Cột C: Số bài tập đã làm
+        document.getElementById('averageScore').textContent = studentData.c[3]?.v || '0'; // Cột D: Điểm trung bình
+        // Chuyển sang giao diện chính
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('mainContent').style.display = 'block';
-
-        currentStudentId = studentId;
-        studentName = studentData.c[3]?.v || '';
-        alert(`Chào mừng ${studentName}, bạn đã đăng nhập thành công!`);
-
-        // Gọi hàm fetchProblems để tải bài tập
-        await fetchProblems();
-	await updateProgress(0);
     } catch (error) {
-        console.error('Lỗi khi xử lý đăng nhập:', error);
-        alert(`Đã xảy ra lỗi khi đăng nhập: ${error.message}`);
+        console.error('Lỗi khi tải dữ liệu:', error);
+        alert(`Không thể tải tiến độ học tập. Chi tiết lỗi: ${error.message}`);
     }
-}
-function displayNextProblem() {
-    if (problems.length > 0) {
-        currentProblem = problems[currentProblemIndex];
-        currentProblemIndex = (currentProblemIndex + 1) % problems.length;
-        document.getElementById('problemText').innerHTML = formatProblemText(currentProblem.problem);
-    } else {
-        document.getElementById('problemText').textContent = 'Không có bài toán nào.';
-    }
-}
+});
 });
        // Các đoạn mã ngăn chặn xem mã nguồn và bảo vệ nội dung
         (function() {
