@@ -467,6 +467,7 @@ async function handleLogin() {
         alert(`Chào mừng ${studentName}, bạn đã đăng nhập thành công!`);
 	await loadProgressFromGitHub(studentId); // Tải tiến độ từ GitHub
 	await fetchProblems();
+	displayProblems(); // Hiển thị danh sách bài tập
 	await updateProgress(0);
     } catch (error) {
         console.error('Lỗi khi xử lý đăng nhập:', error);
