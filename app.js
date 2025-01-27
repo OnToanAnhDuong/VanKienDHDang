@@ -117,7 +117,7 @@
             throw new Error('All API keys have been exhausted or are invalid.');
         }
 
-      async function fetchProblems() {
+  async function fetchProblems() {
     try {
         const response = await fetch(SHEET_URL);
         if (!response.ok) {
@@ -126,10 +126,16 @@
         const text = await response.text();
         const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/)[1]);
         problems = parseGoogleSheetData(jsonData);
-        console.log('Đã tải xong bài tập:', problems);
+
+        if (!problems || problems.length === 0) {
+            console.warn('Không có bài tập nào trong Google Sheet.');
+            document.getElementById('problemText').textContent = 'Không có bài tập nào được tìm thấy.';
+        } else {
+            console.log('Đã tải xong bài tập:', problems);
+        }
     } catch (error) {
         console.error('Lỗi khi tải bài toán:', error);
-        document.getElementById('problemText').textContent = 'Không thể tải bài toán.';
+        document.getElementById('problemText').textContent = 'Lỗi khi tải bài toán. Vui lòng thử lại sau.';
     }
 }
 function parseGoogleSheetData(jsonData) {
