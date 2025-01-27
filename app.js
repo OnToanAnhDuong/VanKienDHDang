@@ -69,25 +69,6 @@ function parseGoogleSheetData(jsonData) {
         problem: row.c[1]?.v.replace(/\r\n|\r|\n/g, '\n') || '' // Cột đề bài
     })).filter(item => item.problem && item.index);
 }
-function displayNextProblem() {
-    if (problems.length > 0) {
-        // Nếu chỉ số hiện tại vượt quá số bài, quay lại bài đầu tiên (tuỳ chọn)
-        if (currentProblemIndex >= problems.length) {
-            currentProblemIndex = 0;
-        }
-
-        // Lấy bài tập theo thứ tự
-        currentProblem = problems[currentProblemIndex];
-        currentProblemIndex++; // Tăng chỉ số lên bài tiếp theo
-
-        document.getElementById('problemText').innerHTML = formatProblemText(currentProblem.problem);
-        MathJax.typesetPromise([document.getElementById('problemText')]).catch(function (err) {
-            console.error('MathJax rendering error:', err);
-        });
-    } else {
-        document.getElementById('problemText').textContent = 'Không có bài toán nào.';
-    }
-}
 function displayProblemByIndex(index) {
     if (problems.length === 0) {
         document.getElementById('problemText').textContent = 'Danh sách bài tập chưa được tải. Vui lòng thử lại.';
