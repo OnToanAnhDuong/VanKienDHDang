@@ -211,22 +211,7 @@ function checkCameraAccess() {
             }
         });
         // Lấy bài toán ngẫu nhiên
-        async function fetchProblems() {
-    try {
-        const response = await fetch(SHEET_URL);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const text = await response.text();
-        const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/)[1]);
-        problems = parseGoogleSheetData(jsonData);
-        console.log('Đã tải xong bài tập:', problems);
-    } catch (error) {
-        console.error('Error fetching problems:', error);
-        document.getElementById('problemText').textContent = 'Lỗi khi tải bài toán. Vui lòng thử lại sau.';
-    }
-}
-async function generateSimilarProblem(originalProblem) {
+   async function generateSimilarProblem(originalProblem) {
             const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent';
             const promptText = `
             Bạn hãy tạo một bài toán tương tự bài sau bằng cách thay đổi các số liệu một cách phù hợp, nhưng giữ nguyên cấu trúc và dạng toán:
