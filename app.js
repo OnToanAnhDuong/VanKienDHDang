@@ -182,16 +182,6 @@ function displayProblemByIndex(index) {
         function formatProblemText(problemText) {
             return problemText.replace(/\n/g, '<br>').replace(/([a-d]\))/g, '<br>$1');
         }
-function checkCameraAccess() {
-    navigator.mediaDevices.enumerateDevices()
-        .then(devices => {
-            const videoDevices = devices.filter(device => device.kind === 'videoinput');
-            if (videoDevices.length === 0) {
-                alert('Không tìm thấy thiết bị camera.');
-            }
-        })
-        .catch(error => console.error('Lỗi khi kiểm tra thiết bị camera:', error));
-}
        // Hàm cập nhật số bài đã làm và điểm trung bình
         function updateProgress(newScore) {
             completedProblems++;
