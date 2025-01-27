@@ -233,10 +233,10 @@ button.delete:hover {
     background-color: #c82333;
 }
 .progress-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-    gap: 10px;
-    margin: 20px 0;
+    display: grid; /* Sử dụng grid layout */
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); /* Chia thành các cột tự động */
+    gap: 10px; /* Khoảng cách giữa các ô */
+    margin: 20px 0; /* Khoảng cách với các thành phần khác */
 }
 
 .progress-item {
