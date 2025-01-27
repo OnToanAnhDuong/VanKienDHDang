@@ -19,20 +19,33 @@
         let studentName = '';
 	let currentProblemIndex = 0; // Bắt đầu từ bài đầu tiên
 	function displayProblems() {
-    const progressContainer = document.getElementById('progressContainer');
-    progressContainer.innerHTML = ''; // Xóa danh sách cũ
+    const problemListContainer = document.getElementById('problemListContainer');
+
+    if (!problemListContainer) {
+        console.error('Không tìm thấy container #problemListContainer');
+        return;
+    }
+
+    problemListContainer.innerHTML = ''; // Xóa nội dung cũ
+
+    if (!problems || problems.length === 0) {
+        problemListContainer.textContent = 'Không có bài tập nào để hiển thị.';
+        return;
+    }
 
     problems.forEach(problem => {
         const item = document.createElement('div');
         item.className = `progress-item ${progress[problem.index] ? 'green' : 'yellow'}`;
-        item.textContent = problem.index;
+        item.textContent = problem.index; // Số thứ tự bài tập
 
-        // Khi học sinh chọn bài
+        // Thêm sự kiện khi nhấn vào ô bài tập
         item.addEventListener('click', () => handleProblemClick(problem.index));
-
-        progressContainer.appendChild(item);
+        problemListContainer.appendChild(item);
     });
-}	
+
+    console.log('Danh sách bài tập đã được hiển thị:', problems);
+}
+
 	async function loadProgressFromGitHub(studentId) {
     try {
         const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${PROGRESS_FILE}`, {
