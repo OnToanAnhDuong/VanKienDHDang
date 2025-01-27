@@ -69,21 +69,6 @@ function parseGoogleSheetData(jsonData) {
         problem: row.c[1]?.v.replace(/\r\n|\r|\n/g, '\n') || '' // Cột đề bài
     })).filter(item => item.problem && item.index);
 }
-function displayProblemByIndex(index) {
-    if (problems.length === 0) {
-        document.getElementById('problemText').textContent = 'Danh sách bài tập chưa được tải. Vui lòng thử lại.';
-        return;
-    }
-    const selectedProblem = problems.find(problem => parseInt(problem.index) === parseInt(index));
-    if (selectedProblem) {
-        document.getElementById('problemText').innerHTML = formatProblemText(selectedProblem.problem);
-        MathJax.typesetPromise([document.getElementById('problemText')]).catch(function (err) {
-            console.error('MathJax rendering error:', err);
-        });
-    } else {
-        document.getElementById('problemText').textContent = `Không tìm thấy bài tập với số thứ tự ${index}.`;
-    }
-}
         function formatProblemText(problemText) {
             return problemText.replace(/\n/g, '<br>').replace(/([a-d]\))/g, '<br>$1');
         }
