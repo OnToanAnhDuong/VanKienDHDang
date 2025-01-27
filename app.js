@@ -3,7 +3,11 @@
         const SHEET_NAME = 'Toan6';
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tq=&tqx=out:json`;
         const API_KEYS = ['AIzaSyCzh6doVzV7Dbmbz60B9pNUQIel2N6KEcI', 'AIzaSyBVQcUrVTtwKeAAsFR8ENM8-kgZl8CsUM0', 'AIzaSyCmY4FdhZ4qSN6HhBtldgQgSNbDlZ4J1ug', 'AIzaSyAkX3rMYxN_-aO95QKMPy-OLIV62esaANU', 'AIzaSyDtmacgYKn1PBgCVWkReF9Kyn6vC4DKZmg', 'AIzaSyAusgvzZkUPT9lHoB7vzZW_frx-Z0xIxU8', 'AIzaSyBBNxoJh9UZXbc4shgRc7nUiJKya3JR2eI', 'AIzaSyAru8K7uUTD85FOCmrNESQmQYh-gfFCOZ8', 'AIzaSyAkDbRl7iBYWhc00KZ9dZL1_l0cobcC0ak', 'AIzaSyAJ9DpLy4uLfbFoyh7IhW9N0uk9YkBEUY4'];        
-        let currentKeyIndex = 0;
+        const GITHUB_REPO = 'OnToanAnhDuong/student-progress'; // Thay 'username' bằng tên GitHub của bạn
+	const GITHUB_TOKEN = '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';   // Thay bằng token của bạn
+	const PROGRESS_FILE = 'progress.json';          // Tên file JSON lưu tiến độ
+	let progress = {};                              // Biến lưu tiến trình
+	let currentKeyIndex = 0;
         let problems = [];
         let currentProblem = null;
 	let completedProblems = 0;  // Khai báo số bài đã giải
