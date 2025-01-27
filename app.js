@@ -670,14 +670,21 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
         document.getElementById('progressContainer').style.display = 'block';
         document.getElementById('completedExercises').textContent = studentData.c[2]?.v || '0'; // Cột C: Số bài tập đã làm
         document.getElementById('averageScore').textContent = studentData.c[3]?.v || '0'; // Cột D: Điểm trung bình
-        // Chuyển sang giao diện chính
+
+        // Lưu ID học sinh hiện tại và chuyển giao diện
+        currentStudentId = studentId;
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('mainContent').style.display = 'block';
+
+        // Tải danh sách bài tập và hiển thị
+        await fetchProblems(); // Tải danh sách bài tập từ Google Sheets
+        renderExerciseList();  // Hiển thị danh sách bài tập
     } catch (error) {
         console.error('Lỗi khi tải dữ liệu:', error);
         alert(`Không thể tải tiến độ học tập. Chi tiết lỗi: ${error.message}`);
     }
 });
+
 	// Lưu tiến độ vào localStorage
 function saveProgress() {
     if (currentStudentId) {
