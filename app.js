@@ -390,7 +390,62 @@ async function generateSimilarProblem(originalProblem) {
             overlay.appendChild(messageBox);
             document.body.appendChild(overlay);
         }
+    document.getElementById('loginBtn').addEventListener('click', handleLogin);
+async function handleLogin() {
+    const studentId = document.getElementById('studentId').value.trim();
 
+    // Bước 1: Kiểm tra nếu mã học sinh rỗng
+    if (!studentId) {
+        alert('Vui lòng nhập mã học sinh.');
+        return;
+    }
+
+    // Bước 2: Lấy dữ liệu từ Google Sheets
+    const sheetId = '165WblAAVsv_aUyDKjrdkMSeQ5zaLiUGNoW26ZFt5KWU'; // ID Google Sheet
+    const sheetName = 'StudentProgress'; // Tên tab trong Google Sheet
+    const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?sheet=${sheetName}&tqx=out:json`;
+
+    try {
+        const response = await fetch(sheetUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Phân tích dữ liệu Google Sheets
+        const text = await response.text();
+        const jsonDataMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/);
+        if (!jsonDataMatch) {
+            throw new Error('Không thể phân tích dữ liệu từ Google Sheet.');
+        }
+
+        const jsonData = JSON.parse(jsonDataMatch[1]);
+        const rows = jsonData.table.rows;
+
+        // Bước 3: Tìm mã học sinh
+        const studentData = rows.find(row => (row.c[0]?.v || '').toString().trim() === studentId);
+        if (!studentData) {
+            alert(`Không tìm thấy lịch sử cho mã học sinh: ${studentId}`);
+            return;
+        }
+
+        // Bước 4: Hiển thị thông tin tiến độ
+        document.getElementById('progressContainer').style.display = 'block';
+        document.getElementById('completedExercises').textContent = studentData.c[2]?.v || '0'; // Số bài đã làm
+        document.getElementById('averageScore').textContent = studentData.c[3]?.v || '0'; // Điểm trung bình
+
+        // Bước 5: Chuyển giao diện
+        document.getElementById('loginContainer').style.display = 'none'; // Ẩn giao diện đăng nhập
+        document.getElementById('mainContent').style.display = 'block';  // Hiển thị giao diện chính
+
+        // Bước 6: Cập nhật thông tin học sinh
+        currentStudentId = studentId; // Lưu mã học sinh hiện tại
+        studentName = studentData.c[3]?.v || ''; // Lưu tên học sinh
+        alert(`Chào mừng ${studentName}, bạn đã đăng nhập thành công!`);
+    } catch (error) {
+        console.error('Lỗi khi xử lý đăng nhập:', error);
+        alert(`Đã xảy ra lỗi khi đăng nhập: ${error.message}`);
+    }
+}
     document.getElementById('submitBtn').addEventListener('click', async () => {
     const problemText = document.getElementById('problemText')?.innerHTML?.trim();
     const studentFileInput = document.getElementById('studentImage');
@@ -474,24 +529,7 @@ async function generateSimilarProblem(originalProblem) {
                 alert("Chưa có gợi ý cho bài toán này.");
             }
         });
-        document.getElementById('loginBtn').addEventListener('click', async () => {
-            const studentId = document.getElementById('studentId').value.trim();
-            if (studentId) {
-                const isValidStudent = await checkStudentId(studentId);
-                if (isValidStudent) {
-                    currentStudentId = studentId;
-                    document.getElementById('loginContainer').style.display = 'none';
-                    document.getElementById('mainContent').style.display = 'block';
-                    document.getElementById('randomProblemBtn').textContent = `Lấy đề bài ngẫu nhiên (${currentStudentId})`;
-                    await fetchProblems();
-                    await updateProgress(0);
-                } else {
-                    alert('Mã học sinh không hợp lệ. Vui lòng thử lại.');
-                }
-            } else {
-                alert('Vui lòng nhập mã học sinh');
-            }
-        });
+       
 	document.getElementById('selectProblemBtn').addEventListener('click', async () => {
     const problemIndexInput = document.getElementById('problemIndexInput').value.trim();
     // Kiểm tra xem người dùng đã nhập số thứ tự hay chưa
@@ -608,54 +646,7 @@ document.getElementById('deleteAllBtn').addEventListener('click', () => {
     // Thông báo hành động hoàn thành
     alert('Đã xóa tất cả ảnh và bài giải.');
 });
-document.getElementById('loginBtn').addEventListener('click', async () => {
-    const sheetId = '165WblAAVsv_aUyDKjrdkMSeQ5zaLiUGNoW26ZFt5KWU'; // ID Google Sheet
-    const sheetName = 'StudentProgress'; // Tên tab trong Google Sheet
-    const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?sheet=${sheetName}&tqx=out:json`;
 
-    const studentId = document.getElementById('studentId').value.trim();
-    if (!studentId) {
-        alert('Vui lòng nhập mã học sinh.');
-        return;
-    }
-    try {
-        const response = await fetch(sheetUrl);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const text = await response.text();
-        const jsonDataMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/);
-        if (!jsonDataMatch) {
-            throw new Error('Không thể phân tích dữ liệu từ Google Sheet.');
-        }
-        const jsonData = JSON.parse(jsonDataMatch[1]);
-        const rows = jsonData.table.rows;
-        if (!rows || rows.length === 0) {
-            alert('Google Sheet không chứa dữ liệu lịch sử.');
-            return;
-        }
-        // Lọc thông tin theo mã học sinh
-        const studentData = rows.find(row => {
-            const sheetId = (row.c[0]?.v || '').toString().trim();
-            return sheetId === studentId;
-        });
-
-        if (!studentData) {
-            alert(`Không tìm thấy lịch sử cho mã học sinh: ${studentId}`);
-            return;
-        }
-        // Hiển thị tiến độ
-        document.getElementById('progressContainer').style.display = 'block';
-        document.getElementById('completedExercises').textContent = studentData.c[2]?.v || '0'; // Cột C: Số bài tập đã làm
-        document.getElementById('averageScore').textContent = studentData.c[3]?.v || '0'; // Cột D: Điểm trung bình
-        // Chuyển sang giao diện chính
-        document.getElementById('loginContainer').style.display = 'none';
-        document.getElementById('mainContent').style.display = 'block';
-    } catch (error) {
-        console.error('Lỗi khi tải dữ liệu:', error);
-        alert(`Không thể tải tiến độ học tập. Chi tiết lỗi: ${error.message}`);
-    }
-});
 });
        // Các đoạn mã ngăn chặn xem mã nguồn và bảo vệ nội dung
         (function() {
