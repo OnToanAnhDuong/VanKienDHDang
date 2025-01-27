@@ -19,7 +19,6 @@
             currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
             return key;
         }
-
         async function makeApiRequest(apiUrl, requestBody) {
             let attempts = 0;
             while (attempts < API_KEYS.length) {
@@ -591,16 +590,18 @@ document.getElementById('deleteAllBtn').addEventListener('click', () => {
     // Thông báo hành động hoàn thành
     alert('Đã xóa tất cả ảnh và bài giải.');
 });
-document.getElementById('loginBtn').addEventListener('click', async () => {
-    const sheetId = '165WblAAVsv_aUyDKjrdkMSeQ5zaLiUGNoW26ZFt5KWU'; // ID Google Sheet
-    const sheetName = 'StudentProgress'; // Tên tab trong Google Sheet
-    const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?sheet=${sheetName}&tqx=out:json`;
-
+document.getElementById('loginBtn').addEventListener('click', handleLogin);
+	async function handleLogin() {
     const studentId = document.getElementById('studentId').value.trim();
     if (!studentId) {
         alert('Vui lòng nhập mã học sinh.');
         return;
     }
+
+    const sheetId = '165WblAAVsv_aUyDKjrdkMSeQ5zaLiUGNoW26ZFt5KWU'; // ID Google Sheet
+    const sheetName = 'StudentProgress'; // Tên tab trong Google Sheet
+    const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?sheet=${sheetName}&tqx=out:json`;
+
     try {
         const response = await fetch(sheetUrl);
         if (!response.ok) {
@@ -613,32 +614,32 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
         }
         const jsonData = JSON.parse(jsonDataMatch[1]);
         const rows = jsonData.table.rows;
-        if (!rows || rows.length === 0) {
-            alert('Google Sheet không chứa dữ liệu lịch sử.');
-            return;
-        }
-        // Lọc thông tin theo mã học sinh
-        const studentData = rows.find(row => {
-            const sheetId = (row.c[0]?.v || '').toString().trim();
-            return sheetId === studentId;
-        });
 
+        // Kiểm tra mã học sinh
+        const studentData = rows.find(row => (row.c[0]?.v || '').toString().trim() === studentId);
         if (!studentData) {
             alert(`Không tìm thấy lịch sử cho mã học sinh: ${studentId}`);
             return;
         }
+
         // Hiển thị tiến độ
         document.getElementById('progressContainer').style.display = 'block';
-        document.getElementById('completedExercises').textContent = studentData.c[2]?.v || '0'; // Cột C: Số bài tập đã làm
-        document.getElementById('averageScore').textContent = studentData.c[3]?.v || '0'; // Cột D: Điểm trung bình
-        // Chuyển sang giao diện chính
+        document.getElementById('completedExercises').textContent = studentData.c[2]?.v || '0'; // Số bài đã làm
+        document.getElementById('averageScore').textContent = studentData.c[3]?.v || '0'; // Điểm trung bình
+
+        // Cập nhật giao diện
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('mainContent').style.display = 'block';
+        currentStudentId = studentId; // Lưu mã học sinh hiện tại
+        studentName = studentData.c[3]?.v || ''; // Lưu tên học sinh
+
+        // Hiển thị thông báo
+        alert(`Chào mừng ${studentName}, bạn đã đăng nhập thành công!`);
     } catch (error) {
-        console.error('Lỗi khi tải dữ liệu:', error);
-        alert(`Không thể tải tiến độ học tập. Chi tiết lỗi: ${error.message}`);
+        console.error('Lỗi khi xử lý đăng nhập:', error);
+        alert(`Đã xảy ra lỗi khi đăng nhập: ${error.message}`);
     }
-});
+}
 });
        // Các đoạn mã ngăn chặn xem mã nguồn và bảo vệ nội dung
         (function() {
