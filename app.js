@@ -619,7 +619,7 @@ async function handleLogin() {
         document.getElementById('mainContent').style.display = 'block';
 
         currentStudentId = studentId;
-        studentName = studentData.c[3]?.v || '';
+        studentName = studentData.c[1]?.v || '';
         alert(`Chào mừng ${studentName}, bạn đã đăng nhập thành công!`);
 
         // Gọi hàm fetchProblems để tải bài tập
