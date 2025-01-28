@@ -263,16 +263,22 @@ async function submitToGoogleForm(score, studentId, problemText, studentAnswer, 
     }
 }
 // Hàm xử lý sự kiện đăng nhập
+// Hàm kiểm tra ID học sinh
 async function checkStudentId(studentId) {
     const progressUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=StudentProgress&tqx=out:json`;
     try {
         const response = await fetch(progressUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const text = await response.text();
         const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/)[1]);
-        const rows = jsonData.table.rows;                
+        const rows = jsonData.table.rows;
+
+        // Tìm thông tin học sinh theo mã
         const studentRow = rows.find(row => row.c[0]?.v?.toString() === studentId);
         if (studentRow) {
-            studentName = studentRow.c[3]?.v || '';
+            studentName = studentRow.c[3]?.v || 'Không xác định';
             return true;
         }
         return false;
@@ -281,6 +287,7 @@ async function checkStudentId(studentId) {
         return false;
     }
 }
+
 
 // Hàm xử lý nút chấm điểm
 async function gradeProblem(base64Image, problemText, studentId) {
