@@ -236,11 +236,11 @@ button.delete:hover {
         display: flex;
         gap: 10px;
         padding: 10px;
-        flex-wrap: wrap;
+        overflow-x: auto;
     }
     .problem-box {
-        width: 40px;
-        height: 40px;
+        width: 60px; /* Tăng kích thước lên gấp đôi */
+        height: 60px; /* Tăng kích thước lên gấp đôi */
         display: flex;
         justify-content: center;
         align-items: center;
@@ -248,5 +248,4 @@ button.delete:hover {
         border-radius: 4px;
         cursor: default;
         font-weight: bold;
-        background-color: yellow;
     }
