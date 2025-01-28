@@ -638,46 +638,14 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
         // Chuyển sang giao diện chính
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('mainContent').style.display = 'block';
+	await loadProgress();
 	await displayProblemList();
     } catch (error) {
         console.error('Lỗi khi tải dữ liệu:', error);
         alert(`Không thể tải tiến độ học tập. Chi tiết lỗi: ${error.message}`);
     }
 });
-async function displayProblemList() {
-    try {
-        const response = await fetch(SHEET_URL); // Lấy dữ liệu từ Google Sheets
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const text = await response.text();
-        const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/)[1]);
-        const rows = jsonData.table.rows;
 
-        // Lấy container hiển thị danh sách bài tập
-        const container = document.getElementById('problemList');
-        container.innerHTML = ''; // Xóa nội dung cũ
-
-        // Duyệt qua từng hàng trong cột A
-        rows.forEach(row => {
-            const problemIndex = row.c[0]?.v; // Lấy thứ tự bài tập từ cột A
-            if (problemIndex) {
-                // Tạo một ô bài tập
-                const problemBox = document.createElement('div');
-                problemBox.textContent = problemIndex;
-                problemBox.className = 'problem-box';
-                problemBox.style.backgroundColor = 'yellow'; // Mặc định: bài tập chưa làm
-
-                // Thêm vào container
-                container.appendChild(problemBox);
-            }
-        });
-
-        console.log('Danh sách bài tập đã hiển thị.');
-    } catch (error) {
-        console.error('Lỗi khi hiển thị danh sách bài tập:', error);
-    }
-}
 async function displayProblemList() {
     try {
         const response = await fetch(SHEET_URL);
@@ -717,6 +685,21 @@ async function displayProblemList() {
         console.log('Danh sách bài tập đã hiển thị:', progressData);
     } catch (error) {
         console.error('Lỗi khi hiển thị danh sách bài tập:', error);
+    }
+}	
+async function loadProgress() {
+    try {
+        const response = await fetch(GITHUB_PROGRESS_URL); // URL đến file progress.json trên GitHub
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        progressData = data || {}; // Nếu dữ liệu trống, khởi tạo đối tượng trống
+        console.log('Tiến trình đã tải:', progressData);
+    } catch (error) {
+        console.error('Lỗi khi tải tiến trình:', error);
+        progressData = {}; // Nếu không tải được, khởi tạo đối tượng trống
     }
 }	
 });
