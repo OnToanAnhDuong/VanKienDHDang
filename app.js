@@ -498,7 +498,7 @@ async function handleLogin() {
 
         // Bước 6: Cập nhật thông tin học sinh
         currentStudentId = studentId; // Lưu mã học sinh hiện tại
-        studentName = studentData.c[1]?.v || ''; // Lưu tên học sinh
+        studentName = studentData.c[3]?.v || ''; // Lưu tên học sinh
         alert(`Chào mừng ${studentName}, bạn đã đăng nhập thành công!`);
 	await fetchProblems();
         await updateProgress(0);
