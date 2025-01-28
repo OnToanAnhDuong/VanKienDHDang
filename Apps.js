@@ -366,7 +366,7 @@ function attachButtonHandlers() {
     // Nút xóa bài giải và hình ảnh
     document.getElementById('clearBtn').addEventListener('click', clearResults);
 
-    // Nút đăng nhập
+   // Nút đăng nhập
     document.getElementById('loginBtn').addEventListener('click', async () => {
         const studentId = document.getElementById('studentId').value.trim();
 
@@ -388,4 +388,5 @@ function attachButtonHandlers() {
 
 // Gọi hàm gắn sự kiện sau khi DOM đã tải
 window.addEventListener('DOMContentLoaded', attachButtonHandlers);
+
 
