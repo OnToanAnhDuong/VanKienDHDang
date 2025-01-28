@@ -232,15 +232,15 @@ button.delete {
 button.delete:hover {
     background-color: #c82333;
 }
- #problemList {
+  #problemList {
         display: flex;
         gap: 10px;
         padding: 10px;
         overflow-x: auto;
     }
     .problem-box {
-        width: 60px; /* Tăng kích thước lên gấp đôi */
-        height: 60px; /* Tăng kích thước lên gấp đôi */
+        width: 60px;
+        height: 60px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -248,4 +248,6 @@ button.delete:hover {
         border-radius: 4px;
         cursor: default;
         font-weight: bold;
+        text-align: center;
+        flex-shrink: 0; /* Đảm bảo các ô không bị co lại */
     }
