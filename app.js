@@ -512,16 +512,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-    function checkCameraAccess() {
-        navigator.mediaDevices.enumerateDevices()
-            .then(devices => {
-                const videoDevices = devices.filter(device => device.kind === 'videoinput');
-                if (videoDevices.length === 0) {
-                    alert('Không tìm thấy thiết bị camera.');
-                }
-            })
-            .catch(error => console.error('Lỗi khi kiểm tra thiết bị camera:', error));
-    }
 captureButton.addEventListener('click', () => {
     if (!video.videoWidth || !video.videoHeight) {
         alert('Camera chưa sẵn sàng. Vui lòng đợi.');
