@@ -1,20 +1,9 @@
 /* script.js */
         const SHEET_ID = '175acnaYklfdCc_UJ7B3LJgNaUJpfrIENxn6LN76QADM';
         const SHEET_NAME = 'Toan6';
-        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tq=&tqx=out:json`;            
-        const API_KEYS = [
-  process.env.API_KEY1,
-  process.env.API_KEY2,
-  process.env.API_KEY3,
-  process.env.API_KEY4,
-  process.env.API_KEY5,
-  process.env.API_KEY6,
-  process.env.API_KEY7,
-  process.env.API_KEY8,
-  process.env.API_KEY9,
-  process.env.API_KEY10,
-];
-let currentKeyIndex = 0;
+        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tq=&tqx=out:json`;
+        const API_KEYS = ['AIzaSyCzh6doVzV7Dbmbz60B9pNUQIel2N6KEcI', 'AIzaSyBVQcUrVTtwKeAAsFR8ENM8-kgZl8CsUM0', 'AIzaSyCmY4FdhZ4qSN6HhBtldgQgSNbDlZ4J1ug', 'AIzaSyAkX3rMYxN_-aO95QKMPy-OLIV62esaANU', 'AIzaSyDtmacgYKn1PBgCVWkReF9Kyn6vC4DKZmg', 'AIzaSyAusgvzZkUPT9lHoB7vzZW_frx-Z0xIxU8', 'AIzaSyBBNxoJh9UZXbc4shgRc7nUiJKya3JR2eI', 'AIzaSyAru8K7uUTD85FOCmrNESQmQYh-gfFCOZ8', 'AIzaSyAkDbRl7iBYWhc00KZ9dZL1_l0cobcC0ak', 'AIzaSyAJ9DpLy4uLfbFoyh7IhW9N0uk9YkBEUY4'];        
+        let currentKeyIndex = 0;
         let problems = [];
         let currentProblem = null;
 	let completedProblems = 0;  // Khai báo số bài đã giải
@@ -523,6 +512,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+    function checkCameraAccess() {
+        navigator.mediaDevices.enumerateDevices()
+            .then(devices => {
+                const videoDevices = devices.filter(device => device.kind === 'videoinput');
+                if (videoDevices.length === 0) {
+                    alert('Không tìm thấy thiết bị camera.');
+                }
+            })
+            .catch(error => console.error('Lỗi khi kiểm tra thiết bị camera:', error));
+    }
 captureButton.addEventListener('click', () => {
     if (!video.videoWidth || !video.videoHeight) {
         alert('Camera chưa sẵn sàng. Vui lòng đợi.');
@@ -620,7 +619,7 @@ async function handleLogin() {
         document.getElementById('mainContent').style.display = 'block';
 
         currentStudentId = studentId;
-        studentName = studentData.c[1]?.v || '';
+        studentName = studentData.c[3]?.v || '';
         alert(`Chào mừng ${studentName}, bạn đã đăng nhập thành công!`);
 
         // Gọi hàm fetchProblems để tải bài tập
