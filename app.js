@@ -20,7 +20,7 @@
             return key;
         }
 
-        async function makeApiRequest(apiUrl, requestBody) {
+async function makeApiRequest(apiUrl, requestBody) {
             let attempts = 0;
             while (attempts < API_KEYS.length) {
                 const apiKey = getNextApiKey();
@@ -47,7 +47,7 @@
             throw new Error('All API keys have been exhausted or are invalid.');
         }
 
-      async function fetchProblems() {
+async function fetchProblems() {
     try {
         const response = await fetch(SHEET_URL);
         if (!response.ok) {
@@ -140,22 +140,6 @@ function checkCameraAccess() {
                 alert('Vui lòng nhập mã học sinh');
             }
         });
-        // Lấy bài toán ngẫu nhiên
-        async function fetchProblems() {
-    try {
-        const response = await fetch(SHEET_URL);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const text = await response.text();
-        const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/)[1]);
-        problems = parseGoogleSheetData(jsonData);
-        console.log('Đã tải xong bài tập:', problems);
-    } catch (error) {
-        console.error('Error fetching problems:', error);
-        document.getElementById('problemText').textContent = 'Lỗi khi tải bài toán. Vui lòng thử lại sau.';
-    }
-}
 async function generateSimilarProblem(originalProblem) {
             const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent';
             const promptText = `
@@ -181,7 +165,7 @@ async function generateSimilarProblem(originalProblem) {
                 return `Đã xảy ra lỗi: ${error.message}`;
             }
         }
-        async function generateHint(problemText) {
+async function generateHint(problemText) {
             const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent';
             const promptText = `
             Đề bài:
@@ -213,7 +197,7 @@ async function generateSimilarProblem(originalProblem) {
                 return `Đã xảy ra lỗi khi tạo gợi ý: ${error.message}`;
             }
         }
-        async function gradeWithGemini(base64Image, problemText, studentId) {
+async function gradeWithGemini(base64Image, problemText, studentId) {
             const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-002:generateContent';
             const promptText = `
             Học sinh: ${studentId}
@@ -265,7 +249,7 @@ async function generateSimilarProblem(originalProblem) {
                 return { studentAnswer: '', feedback: `Đã xảy ra lỗi: ${error.message}`, score: 0 };
             }
         }
-        async function submitToGoogleForm(score, studentId, problemText, studentAnswer, feedback, studentName) {
+async function submitToGoogleForm(score, studentId, problemText, studentAnswer, feedback, studentName) {
             const formId = '1FAIpQLSd4HefrKz-FAyo4YCttFzI9j9wEYQ7IVL38uZe8EwMtTj6KCw';
             const entryName = 'entry.854745128';
             const entryProblem = 'entry.1086866640';
@@ -281,7 +265,7 @@ async function generateSimilarProblem(originalProblem) {
 	    formData.append(entryScore, score || '0');
 	    formData.append(entryTen, `${studentName}`);
             try {
-                const response = await fetch(`https://docs.google.com/forms/d/e/${formId}/formResponse`, {
+        const response = await fetch(`https://docs.google.com/forms/d/e/${formId}/formResponse`, {
                     method: 'POST',
                     mode: 'no-cors',
                     body: formData
@@ -474,7 +458,67 @@ async function generateSimilarProblem(originalProblem) {
                 alert("Chưa có gợi ý cho bài toán này.");
             }
         });
-        document.getElementById('loginBtn').addEventListener('click', async () => {
+document.getElementById('loginBtn').addEventListener('click', handleLogin);
+async function handleLogin() {
+    const studentId = document.getElementById('studentId').value.trim();
+
+    // Bước 1: Kiểm tra nếu mã học sinh rỗng
+    if (!studentId) {
+        alert('Vui lòng nhập mã học sinh.');
+        return;
+    }
+
+    // Bước 2: Lấy dữ liệu từ Google Sheets
+    const sheetId = '165WblAAVsv_aUyDKjrdkMSeQ5zaLiUGNoW26ZFt5KWU'; // ID Google Sheet
+    const sheetName = 'StudentProgress'; // Tên tab trong Google Sheet
+    const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?sheet=${sheetName}&tqx=out:json`;
+
+    try {
+        const response = await fetch(sheetUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Phân tích dữ liệu Google Sheets
+        const text = await response.text();
+        const jsonDataMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/);
+        if (!jsonDataMatch) {
+            throw new Error('Không thể phân tích dữ liệu từ Google Sheet.');
+        }
+
+        const jsonData = JSON.parse(jsonDataMatch[1]);
+        const rows = jsonData.table.rows;
+
+        // Bước 3: Tìm mã học sinh
+        const studentData = rows.find(row => (row.c[0]?.v || '').toString().trim() === studentId);
+        if (!studentData) {
+            alert(`Không tìm thấy lịch sử cho mã học sinh: ${studentId}`);
+            return;
+        }
+
+        // Bước 4: Hiển thị thông tin tiến độ
+        document.getElementById('progressContainer').style.display = 'block';
+        document.getElementById('completedExercises').textContent = studentData.c[2]?.v || '0'; // Số bài đã làm
+        document.getElementById('averageScore').textContent = studentData.c[3]?.v || '0'; // Điểm trung bình
+
+        // Bước 5: Chuyển giao diện
+        document.getElementById('loginContainer').style.display = 'none'; // Ẩn giao diện đăng nhập
+        document.getElementById('mainContent').style.display = 'block';  // Hiển thị giao diện chính
+
+        // Bước 6: Cập nhật thông tin học sinh
+        currentStudentId = studentId; // Lưu mã học sinh hiện tại
+        studentName = studentData.c[1]?.v || ''; // Lưu tên học sinh
+        alert(`Chào mừng ${studentName}, bạn đã đăng nhập thành công!`);
+	await fetchProblems();
+        await updateProgress(0);
+    } catch (error) {
+        console.error('Lỗi khi xử lý đăng nhập:', error);
+        alert(`Đã xảy ra lỗi khi đăng nhập: ${error.message}`);
+    }
+}
+
+
+document.getElementById('loginBtn').addEventListener('click', async () => {
             const studentId = document.getElementById('studentId').value.trim();
             if (studentId) {
                 const isValidStudent = await checkStudentId(studentId);
