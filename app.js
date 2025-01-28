@@ -678,6 +678,47 @@ async function displayProblemList() {
         console.error('Lỗi khi hiển thị danh sách bài tập:', error);
     }
 }
+async function displayProblemList() {
+    try {
+        const response = await fetch(SHEET_URL);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const text = await response.text();
+        const jsonData = JSON.parse(text.match(/google\\.visualization\\.Query\\.setResponse\\(([\\s\\S\\w]+)\\)/)[1]);
+        const rows = jsonData.table.rows;
+
+        const problemContainer = document.getElementById('problemList');
+        problemContainer.innerHTML = ''; // Xóa nội dung cũ
+
+        rows.forEach(row => {
+            const problemIndex = row.c[0]?.v; // Lấy số thứ tự bài tập từ cột A
+            if (problemIndex) {
+                // Nếu bài tập chưa có trong progressData, khởi tạo mặc định là false
+                if (!(problemIndex in progressData)) {
+                    progressData[problemIndex] = false;
+                }
+
+                const problemBox = document.createElement('div');
+                problemBox.textContent = problemIndex;
+                problemBox.className = 'problem-box';
+
+                // Gán màu dựa trên trạng thái
+                if (progressData[problemIndex]) {
+                    problemBox.style.backgroundColor = 'green'; // Đã làm
+                } else {
+                    problemBox.style.backgroundColor = 'yellow'; // Chưa làm
+                }
+
+                problemContainer.appendChild(problemBox);
+            }
+        });
+
+        console.log('Danh sách bài tập đã hiển thị:', progressData);
+    } catch (error) {
+        console.error('Lỗi khi hiển thị danh sách bài tập:', error);
+    }
+}	
 });
        // Các đoạn mã ngăn chặn xem mã nguồn và bảo vệ nội dung
         (function() {
