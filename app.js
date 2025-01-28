@@ -130,16 +130,7 @@ function checkCameraAccess() {
             updateProgress(currentProblemScore);
         });
         // Xử lý khi học sinh đăng nhập
-        document.getElementById('loginBtn').addEventListener('click', function() {
-            const studentId = document.getElementById('studentId').value;
-            if (studentId) {
-                currentStudentId = studentId;
-                document.getElementById('loginContainer').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
-            } else {
-                alert('Vui lòng nhập mã học sinh');
-            }
-        });
+    
 async function generateSimilarProblem(originalProblem) {
             const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent';
             const promptText = `
@@ -516,27 +507,7 @@ async function handleLogin() {
         alert(`Đã xảy ra lỗi khi đăng nhập: ${error.message}`);
     }
 }
-
-
-document.getElementById('loginBtn').addEventListener('click', async () => {
-            const studentId = document.getElementById('studentId').value.trim();
-            if (studentId) {
-                const isValidStudent = await checkStudentId(studentId);
-                if (isValidStudent) {
-                    currentStudentId = studentId;
-                    document.getElementById('loginContainer').style.display = 'none';
-                    document.getElementById('mainContent').style.display = 'block';
-                    document.getElementById('randomProblemBtn').textContent = `Lấy đề bài ngẫu nhiên (${currentStudentId})`;
-                    await fetchProblems();
-                    await updateProgress(0);
-                } else {
-                    alert('Mã học sinh không hợp lệ. Vui lòng thử lại.');
-                }
-            } else {
-                alert('Vui lòng nhập mã học sinh');
-            }
-        });
-	document.getElementById('selectProblemBtn').addEventListener('click', async () => {
+document.getElementById('selectProblemBtn').addEventListener('click', async () => {
     const problemIndexInput = document.getElementById('problemIndexInput').value.trim();
     // Kiểm tra xem người dùng đã nhập số thứ tự hay chưa
     if (!problemIndexInput) {
@@ -652,38 +623,6 @@ document.getElementById('deleteAllBtn').addEventListener('click', () => {
     // Thông báo hành động hoàn thành
     alert('Đã xóa tất cả ảnh và bài giải.');
 });
-document.getElementById('loginBtn').addEventListener('click', async () => {
-    const sheetId = '165WblAAVsv_aUyDKjrdkMSeQ5zaLiUGNoW26ZFt5KWU'; // ID Google Sheet
-    const sheetName = 'StudentProgress'; // Tên tab trong Google Sheet
-    const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?sheet=${sheetName}&tqx=out:json`;
-
-    const studentId = document.getElementById('studentId').value.trim();
-    if (!studentId) {
-        alert('Vui lòng nhập mã học sinh.');
-        return;
-    }
-    try {
-        const response = await fetch(sheetUrl);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const text = await response.text();
-        const jsonDataMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/);
-        if (!jsonDataMatch) {
-            throw new Error('Không thể phân tích dữ liệu từ Google Sheet.');
-        }
-        const jsonData = JSON.parse(jsonDataMatch[1]);
-        const rows = jsonData.table.rows;
-        if (!rows || rows.length === 0) {
-            alert('Google Sheet không chứa dữ liệu lịch sử.');
-            return;
-        }
-        // Lọc thông tin theo mã học sinh
-        const studentData = rows.find(row => {
-            const sheetId = (row.c[0]?.v || '').toString().trim();
-            return sheetId === studentId;
-        });
-
         if (!studentData) {
             alert(`Không tìm thấy lịch sử cho mã học sinh: ${studentId}`);
             return;
