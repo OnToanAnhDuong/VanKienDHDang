@@ -404,6 +404,17 @@ async function generateSimilarProblem(originalProblem) {
             document.getElementById('result').innerHTML = feedback;
             MathJax.typesetPromise([document.getElementById('result')]).catch(err => console.error('MathJax rendering error:', err));
             await updateProgress(score); // Vẫn giữ logic cập nhật nội bộ nếu có
+	      // Nếu có bài tập đang làm, cập nhật tiến trình
+    if (currentProblem && currentProblem.index) {
+        const problemIndex = currentProblem.index;
+        progressData[problemIndex] = true; // Đánh dấu bài tập đã hoàn thành
+
+        console.log(`Cập nhật tiến trình: Bài tập ${problemIndex} đã hoàn thành.`);
+        await saveProgress(); // Lưu lên GitHub
+        await displayProblemList(); // Cập nhật giao diện
+    }
+
+    alert(`Bài tập đã được đánh dấu là hoàn thành!`);
             // Thêm logic cập nhật điểm trung bình và số bài làm từ Google Sheets
             const sheetId = '165WblAAVsv_aUyDKjrdkMSeQ5zaLiUGNoW26ZFt5KWU'; // ID Google Sheet
             const sheetName = 'StudentProgress'; // Tên tab trong Google Sheet
@@ -713,6 +724,60 @@ async function loadProgress() {
         progressData = {}; // Nếu không tải được, khởi tạo đối tượng trống
     }
 }	
+async function saveProgress() {
+    try {
+        const content = btoa(JSON.stringify(progressData, null, 2)); // Mã hóa nội dung thành Base64
+
+        // Lấy SHA của file hiện tại để cập nhật
+        const sha = await getFileSha();
+        if (!sha) {
+            throw new Error('Không thể lấy SHA của file progress.json');
+        }
+
+        const response = await fetch(GITHUB_SAVE_PROGRESS_URL, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer YOUR_GITHUB_TOKEN' // Thay bằng token GitHub của bạn
+            },
+            body: JSON.stringify({
+                message: 'Cập nhật tiến trình học sinh',
+                content: content,
+                sha: sha
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        console.log('Tiến trình đã được lưu lên GitHub.');
+    } catch (error) {
+        console.error('Lỗi khi lưu tiến trình:', error);
+    }
+}
+
+// Hàm lấy SHA của file `progress.json` hiện tại trên GitHub
+async function getFileSha() {
+    try {
+        const response = await fetch(GITHUB_SAVE_PROGRESS_URL, {
+            headers: {
+                'Authorization': 'Bearer YOUR_GITHUB_TOKEN'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.sha; // Trả về SHA của file hiện tại
+    } catch (error) {
+        console.error('Lỗi khi lấy SHA file:', error);
+        return null;
+    }
+}
+	
 });
     
         
