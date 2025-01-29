@@ -726,15 +726,26 @@ async function loadProgress() {
 }	
 async function saveProgress() {
     try {
-        const sha = await getFileSha();
-        if (!sha) {
-            throw new Error("Không thể lấy SHA của file. Kiểm tra URL hoặc token.");
+        console.log("⏳ Bắt đầu lưu tiến trình...");
+
+        // Lấy GITHUB_TOKEN từ biến môi trường
+        const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+        if (!GITHUB_TOKEN) {
+            throw new Error("❌ GITHUB_TOKEN không tồn tại! Kiểm tra biến môi trường trên Vercel.");
         }
 
-        // Mã hóa nội dung JSON thành Base64 (hỗ trợ Unicode)
+        // Lấy SHA hiện tại của file (nếu có)
+        const sha = await getFileSha(GITHUB_TOKEN);
+        if (sha) {
+            console.log(`✅ SHA lấy được: ${sha}`);
+        } else {
+            console.warn("⚠ File chưa tồn tại, sẽ tạo file mới.");
+        }
+
+        // Mã hóa nội dung JSON thành Base64 (đảm bảo hỗ trợ Unicode)
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(progressData, null, 2))));
 
-        // Gửi PUT request để cập nhật file trên GitHub
+        console.log("📤 Gửi dữ liệu lên GitHub...");
         const response = await fetch(GITHUB_SAVE_PROGRESS_URL, {
             method: 'PUT',
             headers: {
@@ -745,24 +756,29 @@ async function saveProgress() {
             body: JSON.stringify({
                 message: 'Cập nhật tiến trình học sinh',
                 content: content,
-                sha: sha
+                ...(sha ? { sha } : {}) // Nếu file chưa tồn tại, bỏ qua SHA
             })
         });
 
+        console.log("📨 Đang kiểm tra phản hồi từ GitHub...");
+        const responseData = await response.json();
+
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(`Lỗi API GitHub: ${JSON.stringify(errorData, null, 2)}`);
+            console.error("❌ Lỗi API GitHub:", responseData);
+            throw new Error(`Lỗi API GitHub: ${JSON.stringify(responseData, null, 2)}`);
         }
 
-        console.log('Tiến trình đã được lưu lên GitHub.');
+        console.log("✅ Tiến trình đã được lưu lên GitHub!");
     } catch (error) {
-        console.error('Lỗi khi lưu tiến trình:', error);
+        console.error("❌ Lỗi khi lưu tiến trình:", error);
     }
 }
 
 // Hàm lấy SHA của file hiện tại
-async function getFileSha() {
+async function getFileSha(GITHUB_TOKEN) {
     try {
+        console.log("📥 Đang lấy SHA của file...");
+
         const response = await fetch(GITHUB_SAVE_PROGRESS_URL, {
             headers: {
                 'Accept': 'application/vnd.github.v3+json',
@@ -772,16 +788,17 @@ async function getFileSha() {
 
         if (!response.ok) {
             if (response.status === 404) {
-                console.warn('File chưa tồn tại, sẽ tạo file mới.');
+                console.warn('⚠ File chưa tồn tại, sẽ tạo mới.');
                 return null; // Không có SHA, file sẽ được tạo mới
             }
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error(`❌ HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
-        return data.sha; // Trả về SHA của file hiện tại
+        console.log(`✅ SHA nhận được: ${data.sha}`);
+        return data.sha;
     } catch (error) {
-        console.error('Lỗi khi lấy SHA file:', error);
+        console.error('❌ Lỗi khi lấy SHA file:', error);
         return null;
     }
 }
