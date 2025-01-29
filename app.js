@@ -740,7 +740,7 @@ async function saveProgress() {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/vnd.github.v3+json',
-                'Authorization': 'Bearer YOUR_GITHUB_TOKEN'
+                'Authorization': 'Bearer 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'
             },
             body: JSON.stringify({
                 message: 'Cập nhật tiến trình học sinh',
