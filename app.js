@@ -638,7 +638,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
         // Chuyển sang giao diện chính
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('mainContent').style.display = 'block';
-	await loadProgress();
+	//await loadProgress();
 	await displayProblemList();
     } catch (error) {
         console.error('Lỗi khi tải dữ liệu:', error);
@@ -648,45 +648,40 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 
 async function displayProblemList() {
     try {
-        const response = await fetch(SHEET_URL);
+        const response = await fetch(SHEET_URL); // Lấy dữ liệu từ Google Sheets
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const text = await response.text();
-        const jsonData = JSON.parse(text.match(/google\\.visualization\\.Query\\.setResponse\\(([\\s\\S\\w]+)\\)/)[1]);
+        const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/)[1]);
         const rows = jsonData.table.rows;
 
-        const problemContainer = document.getElementById('problemList');
-        problemContainer.innerHTML = ''; // Xóa nội dung cũ
+        // Lấy container hiển thị danh sách bài tập
+        const container = document.getElementById('problemList');
+        container.innerHTML = ''; // Xóa nội dung cũ
 
+        // Duyệt qua từng hàng trong cột A
         rows.forEach(row => {
-            const problemIndex = row.c[0]?.v; // Lấy số thứ tự bài tập từ cột A
+            const problemIndex = row.c[0]?.v; // Lấy thứ tự bài tập từ cột A
             if (problemIndex) {
-                // Nếu bài tập chưa có trong progressData, khởi tạo mặc định là false
-                if (!(problemIndex in progressData)) {
-                    progressData[problemIndex] = false;
-                }
-
+                // Tạo một ô bài tập
                 const problemBox = document.createElement('div');
                 problemBox.textContent = problemIndex;
                 problemBox.className = 'problem-box';
+                problemBox.style.backgroundColor = 'yellow'; // Mặc định: bài tập chưa làm
 
-                // Gán màu dựa trên trạng thái
-                if (progressData[problemIndex]) {
-                    problemBox.style.backgroundColor = 'green'; // Đã làm
-                } else {
-                    problemBox.style.backgroundColor = 'yellow'; // Chưa làm
-                }
-
-                problemContainer.appendChild(problemBox);
+                // Thêm vào container
+                container.appendChild(problemBox);
             }
         });
 
-        console.log('Danh sách bài tập đã hiển thị:', progressData);
+        console.log('Danh sách bài tập đã hiển thị.');
     } catch (error) {
         console.error('Lỗi khi hiển thị danh sách bài tập:', error);
     }
-}	
+}
+
+
 async function loadProgress() {
     try {
         const response = await fetch(GITHUB_PROGRESS_URL); // URL đến file progress.json trên GitHub
