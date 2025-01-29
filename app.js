@@ -355,16 +355,7 @@ async function generateSimilarProblem(originalProblem) {
             } else {
                 console.error('Progress elements not found in DOM.');          }
             // Cập nhật Google Sheet
-            await updateGoogleSheetData(currentStudentId, completedProblems, totalScore);
-        } else {
-            console.error('Student ID not found in Google Sheet.');
-            document.getElementById('completedProblems').textContent = '0';
-            document.getElementById('averageScore').textContent = '0';
-        }
-   	 } catch (error) {
-        console.error('Error updating progress:', error.message, error.stack);
-   	 }
-	}
+        
         function showMessageBox(message) {
             const overlay = document.createElement('div');
             overlay.className = 'message-box-overlay';            
