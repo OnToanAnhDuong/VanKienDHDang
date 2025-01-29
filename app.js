@@ -356,6 +356,8 @@ async function generateSimilarProblem(originalProblem) {
                 console.error('Progress elements not found in DOM.');          }
             // Cập nhật Google Sheet
 	}
+    }
+	}
         function showMessageBox(message) {
             const overlay = document.createElement('div');
             overlay.className = 'message-box-overlay';            
