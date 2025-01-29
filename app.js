@@ -762,7 +762,7 @@ async function getFileSha() {
     try {
         const response = await fetch(GITHUB_SAVE_PROGRESS_URL, {
             headers: {
-                'Authorization': 'Bearer YOUR_GITHUB_TOKEN'
+                'Authorization': 'Bearer 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'
             }
         });
 
