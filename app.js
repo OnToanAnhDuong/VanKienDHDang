@@ -740,7 +740,7 @@ async function saveProgress() {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/vnd.github.v3+json',
-                'Authorization': 'Bearer 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'
+                'Authorization': `Bearer ${GITHUB_TOKEN}`
             },
             body: JSON.stringify({
                 message: 'Cập nhật tiến trình học sinh',
@@ -766,7 +766,7 @@ async function getFileSha() {
         const response = await fetch(GITHUB_SAVE_PROGRESS_URL, {
             headers: {
                 'Accept': 'application/vnd.github.v3+json',
-                'Authorization': 'Bearer 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'
+                'Authorization': `Bearer ${GITHUB_TOKEN}`
             }
         });
 
