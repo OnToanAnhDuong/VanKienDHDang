@@ -638,8 +638,14 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
         // Chuyển sang giao diện chính
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('mainContent').style.display = 'block';
-	await loadProgress();
-	await displayProblemList();
+	// Đảm bảo progressData được tải trước khi hiển thị danh sách bài tập
+            console.log('Đang tải tiến trình từ GitHub...');
+            await loadProgress();
+            console.log('Tiến trình tải xong, hiển thị danh sách bài tập...');
+            await displayProblemList();
+            console.log('Danh sách bài tập đã hiển thị');
+
+            alert(`Xin chào, học sinh ${studentId}! Tiến trình đã được tải.`);
     } catch (error) {
         console.error('Lỗi khi tải dữ liệu:', error);
         alert(`Không thể tải tiến độ học tập. Chi tiết lỗi: ${error.message}`);
@@ -690,7 +696,6 @@ async function displayProblemList() {
         const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/)[1]);
         const rows = jsonData.table.rows;
 
-        // Kiểm tra nếu không có dữ liệu từ Google Sheets
         if (!rows || rows.length === 0) {
             console.error('Không có bài tập nào trong Google Sheets.');
             return;
@@ -712,15 +717,12 @@ async function displayProblemList() {
                     progressData[problemIndex] = false;
                 }
 
-                // Tạo ô bài tập
                 const problemBox = document.createElement('div');
                 problemBox.textContent = problemIndex;
                 problemBox.className = 'problem-box';
 
-                // Gán màu dựa trên trạng thái
                 problemBox.style.backgroundColor = progressData[problemIndex] ? 'green' : 'yellow';
 
-                // Thêm ô bài tập vào container
                 problemContainer.appendChild(problemBox);
             }
         });
