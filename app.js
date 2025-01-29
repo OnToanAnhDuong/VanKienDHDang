@@ -651,41 +651,6 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
         alert(`Không thể tải tiến độ học tập. Chi tiết lỗi: ${error.message}`);
     }
 });
-
-//async function displayProblemList() {
-    try {
-        const response = await fetch(SHEET_URL); // Lấy dữ liệu từ Google Sheets
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const text = await response.text();
-        const jsonData = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/)[1]);
-        const rows = jsonData.table.rows;
-
-        // Lấy container hiển thị danh sách bài tập
-        const container = document.getElementById('problemList');
-        container.innerHTML = ''; // Xóa nội dung cũ
-
-        // Duyệt qua từng hàng trong cột A
-        rows.forEach(row => {
-            const problemIndex = row.c[0]?.v; // Lấy thứ tự bài tập từ cột A
-            if (problemIndex) {
-                // Tạo một ô bài tập
-                const problemBox = document.createElement('div');
-                problemBox.textContent = problemIndex;
-                problemBox.className = 'problem-box';
-                problemBox.style.backgroundColor = 'yellow'; // Mặc định: bài tập chưa làm
-
-                // Thêm vào container
-                container.appendChild(problemBox);
-            }
-        });
-
-        console.log('Danh sách bài tập đã hiển thị.');
-    } catch (error) {
-        console.error('Lỗi khi hiển thị danh sách bài tập:', error);
-    }
-}
 async function displayProblemList() {
     try {
         const response = await fetch(SHEET_URL);
