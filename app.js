@@ -726,19 +726,21 @@ async function loadProgress() {
 }	
 async function saveProgress() {
     try {
-        const content = btoa(JSON.stringify(progressData, null, 2)); // Mã hóa nội dung thành Base64
-
-        // Lấy SHA của file hiện tại để cập nhật
         const sha = await getFileSha();
         if (!sha) {
-            throw new Error('Không thể lấy SHA của file progress.json');
+            throw new Error("Không thể lấy SHA của file. Kiểm tra URL hoặc token.");
         }
 
+        // Mã hóa nội dung JSON thành Base64 (hỗ trợ Unicode)
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(progressData, null, 2))));
+
+        // Gửi PUT request để cập nhật file trên GitHub
         const response = await fetch(GITHUB_SAVE_PROGRESS_URL, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer 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' // Thay bằng token GitHub của bạn
+                'Accept': 'application/vnd.github.v3+json',
+                'Authorization': 'Bearer YOUR_GITHUB_TOKEN'
             },
             body: JSON.stringify({
                 message: 'Cập nhật tiến trình học sinh',
@@ -748,7 +750,8 @@ async function saveProgress() {
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorData = await response.json();
+            throw new Error(`Lỗi API GitHub: ${JSON.stringify(errorData, null, 2)}`);
         }
 
         console.log('Tiến trình đã được lưu lên GitHub.');
@@ -757,16 +760,21 @@ async function saveProgress() {
     }
 }
 
-// Hàm lấy SHA của file `progress.json` hiện tại trên GitHub
+// Hàm lấy SHA của file hiện tại
 async function getFileSha() {
     try {
         const response = await fetch(GITHUB_SAVE_PROGRESS_URL, {
             headers: {
-                'Authorization': 'Bearer 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'
+                'Accept': 'application/vnd.github.v3+json',
+                'Authorization': 'Bearer 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'
             }
         });
 
         if (!response.ok) {
+            if (response.status === 404) {
+                console.warn('File chưa tồn tại, sẽ tạo file mới.');
+                return null; // Không có SHA, file sẽ được tạo mới
+            }
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
@@ -777,7 +785,7 @@ async function getFileSha() {
         return null;
     }
 }
-	
+
 });
     
         
