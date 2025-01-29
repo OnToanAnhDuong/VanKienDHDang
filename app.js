@@ -738,7 +738,7 @@ async function saveProgress() {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer YOUR_GITHUB_TOKEN' // Thay bằng token GitHub của bạn
+                'Authorization': 'Bearer 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' // Thay bằng token GitHub của bạn
             },
             body: JSON.stringify({
                 message: 'Cập nhật tiến trình học sinh',
