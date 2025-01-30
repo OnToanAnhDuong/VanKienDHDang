@@ -750,6 +750,109 @@ async function saveProgress() {
 }
 
 // Hàm hiển thị danh sách bài tập từ Google Sheets
+// Sử dụng trực tiếp biến môi trường mà không khai báo lại
+if (!process.env.GITHUB_TOKEN || !process.env.GITHUB_SAVE_PROGRESS_URL) {
+    console.error("❌ Biến môi trường không hợp lệ hoặc chưa được khai báo!");
+    process.exit(1);  // Dừng ứng dụng nếu biến môi trường không hợp lệ
+}
+
+// Tiếp tục với các hàm xử lý tiến trình, hiển thị bài tập, v.v.
+
+// Dữ liệu bạn muốn ghi vào file progress.json
+let progressData = {};
+
+// Hàm lấy SHA của file nếu nó đã tồn tại
+async function getFileSha() {
+    try {
+        console.log("📥 Đang lấy SHA của file...");
+
+        const response = await fetch(process.env.GITHUB_SAVE_PROGRESS_URL, {
+            headers: {
+                'Accept': 'application/vnd.github.v3+json',
+                'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`
+            }
+        });
+
+        if (!response.ok) {
+            if (response.status === 404) {
+                console.warn("⚠ File chưa tồn tại, sẽ tạo mới.");
+                return null; // Nếu file chưa tồn tại, trả về null
+            }
+            throw new Error(`❌ Lỗi khi lấy SHA file: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (!data.sha) {
+            throw new Error("❌ Không tìm thấy SHA trong phản hồi của GitHub.");
+        }
+
+        console.log(`✅ SHA nhận được: ${data.sha}`);
+        return data.sha; // Trả về SHA của file nếu file đã tồn tại
+    } catch (error) {
+        console.error("❌ Lỗi khi lấy SHA file:", error);
+        return null; // Trả về null nếu có lỗi
+    }
+}
+
+// Hàm lưu tiến trình vào GitHub
+async function saveProgress() {
+    try {
+        console.log("⏳ Bắt đầu lưu tiến trình...");
+
+        // Mã hóa dữ liệu thành Base64
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(progressData, null, 2))));
+
+        // Lấy SHA của file (nếu có)
+        const sha = await getFileSha();
+
+        // Gửi yêu cầu PUT để ghi dữ liệu vào GitHub
+        const response = await fetch(process.env.GITHUB_SAVE_PROGRESS_URL, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`
+            },
+            body: JSON.stringify({
+                message: 'Cập nhật tiến trình học sinh',
+                content: content,
+                sha: sha // Nếu file đã tồn tại, chúng ta cung cấp SHA để cập nhật
+            })
+        });
+
+        const responseData = await response.json();
+
+        if (!response.ok) {
+            console.error("❌ Lỗi khi ghi tiến trình vào GitHub:", responseData);
+            throw new Error(`Lỗi GitHub API: ${JSON.stringify(responseData, null, 2)}`);
+        }
+
+        console.log("✅ Tiến trình đã được lưu vào GitHub:", responseData);
+    } catch (error) {
+        console.error("❌ Lỗi khi lưu tiến trình:", error);
+    }
+}
+
+// Hàm tải tiến trình từ GitHub
+async function loadProgress() {
+    try {
+        console.log("📥 Đang tải tiến trình từ GitHub...");
+
+        const response = await fetch(process.env.GITHUB_SAVE_PROGRESS_URL);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        progressData = data || {}; // Nếu dữ liệu trống, khởi tạo đối tượng trống
+
+        console.log("✅ Tiến trình đã tải thành công:", progressData);
+    } catch (error) {
+        console.error("❌ Lỗi khi tải tiến trình:", error);
+        progressData = {}; // Nếu không tải được, khởi tạo đối tượng trống
+    }
+}
+
+// Hàm hiển thị danh sách bài tập từ Google Sheets
 async function displayProblemList() {
     try {
         console.log("📥 Đang tải danh sách bài tập từ Google Sheets...");
@@ -812,26 +915,6 @@ async function displayProblemList() {
         console.log('✅ Danh sách bài tập đã hiển thị:', progressData);
     } catch (error) {
         console.error('❌ Lỗi khi hiển thị danh sách bài tập:', error);
-    }
-}
-
-// Hàm tải tiến trình từ GitHub
-async function loadProgress() {
-    try {
-        console.log("📥 Đang tải tiến trình từ GitHub...");
-
-        const response = await fetch(GITHUB_PROGRESS_URL);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        progressData = data || {}; // Nếu dữ liệu trống, khởi tạo đối tượng trống
-
-        console.log("✅ Tiến trình đã tải thành công:", progressData);
-    } catch (error) {
-        console.error("❌ Lỗi khi tải tiến trình:", error);
-        progressData = {}; // Nếu không tải được, khởi tạo đối tượng trống
     }
 }
 
