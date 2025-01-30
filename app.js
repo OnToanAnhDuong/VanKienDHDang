@@ -4,7 +4,9 @@
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tq=&tqx=out:json`;
        const API_KEYS = ['AIzaSyC19C8TMK1qKBIVWA9ESOn7rI2KiQ9Zzh0', 'AIzaSyC78CF104DqICmznB9qrGPCaCiULo5tGX8', 'AIzaSyAxOWjB4zwE3rfYY0TduSKn1U0KssnDXdA', 'AIzaSyAkX3rMYxN_-aO95QKMPy-OLIV62esaANU', 'AIzaSyDtmacgYKn1PBgCVWkReF9Kyn6vC4DKZmg', 'AIzaSyAusgvzZkUPT9lHoB7vzZW_frx-Z0xIxU8', 'AIzaSyBBNxoJh9UZXbc4shgRc7nUiJKya3JR2eI', 'AIzaSyAru8K7uUTD85FOCmrNESQmQYh-gfFCOZ8', 'AIzaSyAkDbRl7iBYWhc00KZ9dZL1_l0cobcC0ak', 'AIzaSyAJ9DpLy4uLfbFoyh7IhW9N0uk9YkBEUY4'];    
         const GITHUB_PROGRESS_URL = 'https://raw.githubusercontent.com/OnToanAnhDuong/WEBMOi/main/progress.json';
-	
+	const GITHUB_SAVE_PROGRESS_URL = 'https://api.github.com/repos/OnToanAnhDuong/WEBMOi/contents/progress.json';
+        const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+
 	let currentKeyIndex = 0;
         let problems = [];
         let currentProblem = null;
@@ -660,7 +662,13 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
     }
 });
 // Hàm lấy SHA của file từ GitHub
-async function getFileSha(GITHUB_TOKEN) {
+if (!GITHUB_TOKEN) {
+    console.error("❌ Lỗi: GITHUB_TOKEN không tồn tại! Kiểm tra biến môi trường trên Vercel.");
+    process.exit(1);
+}
+
+// Hàm lấy SHA của file từ GitHub
+async function getFileSha() {
     try {
         console.log("📥 Đang lấy SHA của file...");
 
@@ -674,72 +682,44 @@ async function getFileSha(GITHUB_TOKEN) {
         if (!response.ok) {
             if (response.status === 404) {
                 console.warn("⚠ File chưa tồn tại, sẽ tạo mới.");
-                return null; // Không có SHA, file sẽ được tạo mới
+                return null;  // File chưa tồn tại, tạo mới
             }
             throw new Error(`❌ HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
-        if (!data.sha) {
-            throw new Error("❌ Không tìm thấy SHA trong phản hồi của GitHub.");
-        }
-
-        console.log(`✅ SHA nhận được: ${data.sha}`);
-        return data.sha; // Trả về SHA của file hiện tại
+        return data.sha || null;  // Trả về SHA nếu file tồn tại
     } catch (error) {
         console.error("❌ Lỗi khi lấy SHA file:", error);
-        return null; // Trả về null nếu gặp lỗi
+        return null;  // Nếu gặp lỗi, trả về null
     }
 }
 
 // Hàm lưu tiến trình lên GitHub
-async function saveProgress() {
+async function saveProgress(progressData) {
     try {
-        console.log("⏳ Bắt đầu lưu tiến trình...");
+        console.log("⏳ Đang lưu tiến trình...");
 
-        // Lấy GITHUB_TOKEN từ biến môi trường
-        const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-        if (!GITHUB_TOKEN) {
-            throw new Error("❌ GITHUB_TOKEN không tồn tại! Kiểm tra biến môi trường trên Vercel.");
-        }
+        const sha = await getFileSha();
+        const content = Buffer.from(JSON.stringify(progressData, null, 2)).toString('base64');
 
-        // Đảm bảo progressData luôn tồn tại
-        if (!progressData) progressData = {};
-
-        // Lấy SHA hiện tại của file (nếu có)
-        const sha = await getFileSha(GITHUB_TOKEN);
-        if (sha) {
-            console.log(`✅ SHA lấy được: ${sha}`);
-        } else {
-            console.warn("⚠ File chưa tồn tại, sẽ tạo file mới.");
-        }
-
-        // Mã hóa nội dung JSON thành Base64 (hỗ trợ Unicode)
-        const content = btoa(unescape(encodeURIComponent(JSON.stringify(progressData, null, 2))));
-
-        console.log("📊 Dữ liệu trước khi lưu:", JSON.stringify(progressData, null, 2));
-
-        // Gửi dữ liệu lên GitHub
-        console.log("📤 Gửi dữ liệu lên GitHub...");
         const response = await fetch(GITHUB_SAVE_PROGRESS_URL, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/vnd.github.v3+json',
                 'Authorization': `Bearer ${GITHUB_TOKEN}`
             },
             body: JSON.stringify({
                 message: 'Cập nhật tiến trình học sinh',
                 content: content,
-                ...(sha ? { sha } : {}) // Nếu file chưa tồn tại, bỏ qua SHA
+                ...(sha ? { sha } : {})  // Nếu file tồn tại, cung cấp SHA để cập nhật
             })
         });
 
-        const responseData = await response.json();
-
         if (!response.ok) {
-            console.error("❌ Lỗi API GitHub:", responseData);
-            throw new Error(`Lỗi API GitHub: ${JSON.stringify(responseData, null, 2)}`);
+            const errorData = await response.json();
+            console.error("❌ Lỗi khi lưu tiến trình:", errorData);
+            return;
         }
 
         console.log("✅ Tiến trình đã được lưu lên GitHub!");
@@ -747,6 +727,19 @@ async function saveProgress() {
         console.error("❌ Lỗi khi lưu tiến trình:", error);
     }
 }
+
+// Ví dụ về dữ liệu tiến trình
+const progressData = {
+    studentId: "student123",
+    progress: {
+        "problem1": true,
+        "problem2": false,
+        "problem3": true
+    }
+};
+
+// Lưu tiến trình
+saveProgress(progressData);
 
 // Hàm hiển thị danh sách bài tập từ Google Sheets
 async function displayProblemList() {
@@ -779,17 +772,13 @@ async function displayProblemList() {
             return;
         }
 
-        problemContainer.innerHTML = ''; // Xóa nội dung cũ
-
-        // Đảm bảo progressData luôn tồn tại
-        if (!progressData) progressData = {};
+        problemContainer.innerHTML = '';  // Xóa nội dung cũ
 
         rows.forEach(row => {
-            const problemIndex = row.c[0]?.v; // Lấy số thứ tự bài tập từ cột A
-            if (problemIndex != null) { // Tránh trường hợp undefined/null
-                // Nếu bài tập chưa có trong progressData, đặt mặc định là false
+            const problemIndex = row.c[0]?.v;  // Lấy số thứ tự bài tập từ cột A
+            if (problemIndex != null) {  // Tránh trường hợp undefined/null
                 if (!(problemIndex in progressData)) {
-                    progressData[problemIndex] = false;
+                    progressData[problemIndex] = false;  // Nếu bài tập chưa có trong progressData, đặt mặc định là false
                 }
 
                 const problemBox = document.createElement('div');
@@ -797,11 +786,10 @@ async function displayProblemList() {
                 problemBox.className = 'problem-box';
                 problemBox.style.backgroundColor = progressData[problemIndex] ? 'green' : 'yellow';
 
-                // Thêm sự kiện click để thay đổi trạng thái
                 problemBox.addEventListener("click", async () => {
-                    progressData[problemIndex] = !progressData[problemIndex];
+                    progressData[problemIndex] = !progressData[problemIndex];  // Thay đổi trạng thái khi click
                     problemBox.style.backgroundColor = progressData[problemIndex] ? 'green' : 'yellow';
-                    await saveProgress(); // Cập nhật tiến trình ngay khi click
+                    await saveProgress(progressData);  // Cập nhật tiến trình ngay khi click
                 });
 
                 problemContainer.appendChild(problemBox);
@@ -825,12 +813,12 @@ async function loadProgress() {
         }
 
         const data = await response.json();
-        progressData = data || {}; // Nếu dữ liệu trống, khởi tạo đối tượng trống
+        progressData = data || {};  // Nếu dữ liệu trống, khởi tạo đối tượng trống
 
         console.log("✅ Tiến trình đã tải thành công:", progressData);
     } catch (error) {
         console.error("❌ Lỗi khi tải tiến trình:", error);
-        progressData = {}; // Nếu không tải được, khởi tạo đối tượng trống
+        progressData = {};  // Nếu không tải được, khởi tạo đối tượng trống
     }
 }
 });
