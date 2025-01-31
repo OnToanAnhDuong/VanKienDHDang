@@ -827,6 +827,8 @@ async function displayProblemList() {
 }
 
 // Hàm tải tiến trình từ GitHub
+let progressData = {}; // Đổi từ const thành let để có thể cập nhật giá trị
+
 async function loadProgress() {
     try {
         console.log("📥 Đang tải tiến trình từ GitHub...");
@@ -844,16 +846,16 @@ async function loadProgress() {
         const data = await response.json();
         if (data && data.content) {
             const decodedContent = Buffer.from(data.content, 'base64').toString('utf-8');
-            progressData = JSON.parse(decodedContent);
+            progressData = JSON.parse(decodedContent); // Cập nhật giá trị cho progressData
         } else {
-            progressData = {};
+            progressData = {}; // Nếu không có dữ liệu, khởi tạo là object rỗng
         }
 
         console.log("✅ Tiến trình đã tải thành công:", progressData);
     } catch (error) {
         console.error("❌ Lỗi khi tải tiến trình:", error);
-        progressData = {};
-     }
+        progressData = {}; // Đảm bảo biến không bị undefined nếu xảy ra lỗi
+    }
 }
 });
     
