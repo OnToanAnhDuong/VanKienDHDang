@@ -17,6 +17,7 @@ export default async function handler(req, res) {
 
     let sha = null;
     try {
+        console.log("📥 Đang lấy SHA của file...");
         const shaResponse = await fetch(GITHUB_SAVE_PROGRESS_URL, {
             headers: {
                 'Accept': 'application/vnd.github.v3+json',
@@ -38,7 +39,9 @@ export default async function handler(req, res) {
     }
 
     try {
+        console.log("📤 Đang ghi dữ liệu lên GitHub...");
         const content = Buffer.from(JSON.stringify(progressData, null, 2)).toString('base64');
+
         const saveResponse = await fetch(GITHUB_SAVE_PROGRESS_URL, {
             method: 'PUT',
             headers: {
