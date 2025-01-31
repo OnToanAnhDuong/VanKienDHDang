@@ -760,25 +760,56 @@ async function displayProblemList() {
 
 // Hàm lưu tiến trình lên GitHub
 async function saveProgress(progressData) {
-    try {
-        console.log("⏳ Đang lưu tiến trình...");
+    const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+    if (!GITHUB_TOKEN) {
+        console.error("❌ Lỗi: GITHUB_TOKEN không tồn tại! Kiểm tra biến môi trường trên Vercel.");
+        return;
+    }
 
-        const content = btoa(JSON.stringify(progressData, null, 2));
+    try {
+        console.log("⏳ Đang lấy SHA của file JSON...");
+
+        // Lấy SHA của file JSON từ GitHub
+        let sha = null;
+        const shaResponse = await fetch(GITHUB_SAVE_PROGRESS_URL, {
+            headers: {
+                'Accept': 'application/vnd.github.v3+json',
+                'Authorization': `Bearer ${GITHUB_TOKEN}`
+            }
+        });
+
+        if (shaResponse.ok) {
+            const shaData = await shaResponse.json();
+            sha = shaData.sha || null;
+            console.log("✅ SHA lấy được:", sha);
+        } else if (shaResponse.status === 404) {
+            console.warn("⚠ File chưa tồn tại, sẽ tạo mới.");
+        } else {
+            throw new Error("❌ Lỗi khi lấy SHA file từ GitHub.");
+        }
+
+        console.log("⏳ Đang lưu tiến trình lên GitHub...");
+
+        // Mã hóa JSON thành Base64
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(progressData, null, 2))));
 
         const response = await fetch(GITHUB_SAVE_PROGRESS_URL, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`
+                'Authorization': `Bearer ${GITHUB_TOKEN}`
             },
             body: JSON.stringify({
-                message: 'Cập nhật tiến trình',
-                content: content
+                message: 'Cập nhật tiến trình học sinh',
+                content: content,
+                ...(sha ? { sha } : {}) // Nếu file đã tồn tại, cần SHA để cập nhật
             })
         });
 
         if (!response.ok) {
-            throw new Error("Lỗi khi lưu tiến trình.");
+            const errorData = await response.json();
+            console.error("❌ Lỗi khi lưu tiến trình:", errorData);
+            return;
         }
 
         console.log("✅ Tiến trình đã được lưu lên GitHub!");
