@@ -759,22 +759,36 @@ async function displayProblemList() {
 }
 
 // Hàm lưu tiến trình lên GitHub
-export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method Not Allowed' });
+async function saveProgress(progressData) {
+    try {
+        console.log("📤 Gửi tiến trình lên API server...", progressData);
+
+        // Tự động lấy URL API theo môi trường (local hoặc Vercel)
+        const apiUrl = `${window.location.origin}/api/save-progress`;
+
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ progressData }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            console.error('❌ Lỗi khi lưu tiến trình:', result);
+            alert("Lưu tiến trình thất bại!"); // Hiển thị lỗi cho người dùng
+        } else {
+            console.log("✅ Tiến trình đã được lưu lên GitHub!", result);
+            alert("Tiến trình đã được lưu thành công!"); // Thông báo thành công
+        }
+    } catch (error) {
+        console.error('❌ Lỗi khi gọi API lưu tiến trình:', error);
+        alert("Lỗi khi gọi API lưu tiến trình!"); // Hiển thị lỗi
     }
-
-    console.log("📥 API nhận request:", req.body);
-
-    const { progressData } = req.body;
-
-    if (!progressData || typeof progressData !== "object") {
-        console.error("❌ Dữ liệu gửi lên không hợp lệ:", progressData);
-        return res.status(400).json({ error: "Dữ liệu không hợp lệ." });
-    }
-
-    res.status(200).json({ message: "✅ API nhận dữ liệu thành công!", receivedData: progressData });
 }
+
 // Khi trang tải xong, tự động tải tiến trình từ GitHub và hiển thị danh sách bài tập
 document.addEventListener("DOMContentLoaded", function () {
     console.log("📌 Trang đã tải xong, bắt đầu tải tiến trình từ GitHub...");
