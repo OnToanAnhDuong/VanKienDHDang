@@ -6,16 +6,14 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    console.log("📥 [API] Dữ liệu nhận được từ client:", req.body);
+    console.log("📥 API nhận request:", req.body);
 
     const { progressData } = req.body;
 
     if (!progressData || typeof progressData !== "object") {
-        console.error("❌ [API] Dữ liệu không hợp lệ:", progressData);
+        console.error("❌ Dữ liệu không hợp lệ:", progressData);
         return res.status(400).json({ error: "Dữ liệu không hợp lệ." });
     }
-
-    console.log("✅ [API] Dữ liệu hợp lệ, chuẩn bị ghi vào GitHub:", JSON.stringify(progressData, null, 2));
 
     let sha = null;
     try {
@@ -30,14 +28,14 @@ export default async function handler(req, res) {
         if (shaResponse.ok) {
             const shaData = await shaResponse.json();
             sha = shaData.sha || null;
-            console.log("✅ [API] SHA hiện tại:", sha);
+            console.log("✅ SHA hiện tại:", sha);
         } else if (shaResponse.status === 404) {
-            console.warn("⚠ [API] File chưa tồn tại, sẽ tạo mới.");
+            console.warn("⚠ File chưa tồn tại, sẽ tạo mới.");
         } else {
-            console.error("❌ [API] Lỗi khi lấy SHA từ GitHub:", await shaResponse.json());
+            console.error("❌ Lỗi khi lấy SHA từ GitHub:", await shaResponse.json());
         }
     } catch (error) {
-        console.error("❌ [API] Lỗi khi lấy SHA:", error);
+        console.error("❌ Lỗi khi lấy SHA:", error);
     }
 
     try {
@@ -67,7 +65,7 @@ export default async function handler(req, res) {
         return res.status(200).json({ message: "✅ Tiến trình đã lưu thành công!", data: saveData });
 
     } catch (error) {
-        console.error("❌ [API] Lỗi khi ghi dữ liệu lên GitHub:", error);
+        console.error("❌ Lỗi khi ghi dữ liệu lên GitHub:", error);
         return res.status(500).json({ error: "Lỗi khi ghi dữ liệu lên GitHub." });
     }
 }
