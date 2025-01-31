@@ -763,7 +763,6 @@ async function saveProgress(progressData) {
     try {
         console.log("📤 Gửi tiến trình lên API server...", progressData);
 
-        // Tự động lấy URL API theo môi trường (local hoặc Vercel)
         const apiUrl = `${window.location.origin}/api/save-progress`;
 
         const response = await fetch(apiUrl, {
@@ -778,22 +777,23 @@ async function saveProgress(progressData) {
 
         if (!response.ok) {
             console.error('❌ Lỗi khi lưu tiến trình:', result);
-            alert("Lưu tiến trình thất bại!"); // Hiển thị lỗi cho người dùng
+            alert("Lưu tiến trình thất bại! Xem console để biết chi tiết."); 
         } else {
             console.log("✅ Tiến trình đã được lưu lên GitHub!", result);
-            alert("Tiến trình đã được lưu thành công!"); // Thông báo thành công
+            alert("Tiến trình đã được lưu thành công!");
         }
     } catch (error) {
         console.error('❌ Lỗi khi gọi API lưu tiến trình:', error);
-        alert("Lỗi khi gọi API lưu tiến trình!"); // Hiển thị lỗi
+        alert("Lỗi khi gọi API lưu tiến trình! Xem console để biết chi tiết.");
     }
 }
 
-// Khi trang tải xong, tự động tải tiến trình từ GitHub và hiển thị danh sách bài tập
+// Khi trang tải xong, tự động tải tiến trình từ GitHub
 document.addEventListener("DOMContentLoaded", function () {
     console.log("📌 Trang đã tải xong, bắt đầu tải tiến trình từ GitHub...");
     loadProgress();
 });
+
 
 });
 
