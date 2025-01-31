@@ -760,64 +760,27 @@ async function displayProblemList() {
 
 // Hàm lưu tiến trình lên GitHub
 async function saveProgress(progressData) {
-    const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-    if (!GITHUB_TOKEN) {
-        console.error("❌ Lỗi: GITHUB_TOKEN không tồn tại! Kiểm tra biến môi trường trên Vercel.");
-        return;
-    }
-
     try {
-        console.log("⏳ Đang lấy SHA của file JSON...");
+        console.log("📤 Gửi tiến trình lên API server...", progressData);
 
-        // Lấy SHA của file JSON từ GitHub
-        let sha = null;
-        const shaResponse = await fetch(GITHUB_SAVE_PROGRESS_URL, {
-            headers: {
-                'Accept': 'application/vnd.github.v3+json',
-                'Authorization': `Bearer ${GITHUB_TOKEN}`
-            }
-        });
-
-        if (shaResponse.ok) {
-            const shaData = await shaResponse.json();
-            sha = shaData.sha || null;
-            console.log("✅ SHA lấy được:", sha);
-        } else if (shaResponse.status === 404) {
-            console.warn("⚠ File chưa tồn tại, sẽ tạo mới.");
-        } else {
-            throw new Error("❌ Lỗi khi lấy SHA file từ GitHub.");
-        }
-
-        console.log("⏳ Đang lưu tiến trình lên GitHub...");
-
-        // Mã hóa JSON thành Base64
-        const content = btoa(unescape(encodeURIComponent(JSON.stringify(progressData, null, 2))));
-
-        const response = await fetch(GITHUB_SAVE_PROGRESS_URL, {
-            method: 'PUT',
+        const response = await fetch('/api/save-progress', {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${GITHUB_TOKEN}`
             },
-            body: JSON.stringify({
-                message: 'Cập nhật tiến trình học sinh',
-                content: content,
-                ...(sha ? { sha } : {}) // Nếu file đã tồn tại, cần SHA để cập nhật
-            })
+            body: JSON.stringify({ progressData }),
         });
 
+        const result = await response.json();
         if (!response.ok) {
-            const errorData = await response.json();
-            console.error("❌ Lỗi khi lưu tiến trình:", errorData);
-            return;
+            console.error('❌ Lỗi khi lưu tiến trình:', result);
+        } else {
+            console.log("✅ Tiến trình đã được lưu lên GitHub!", result);
         }
-
-        console.log("✅ Tiến trình đã được lưu lên GitHub!");
     } catch (error) {
-        console.error("❌ Lỗi khi lưu tiến trình:", error);
+        console.error('❌ Lỗi khi gọi API lưu tiến trình:', error);
     }
 }
-
 // Khi trang tải xong, tự động tải tiến trình từ GitHub và hiển thị danh sách bài tập
 document.addEventListener("DOMContentLoaded", function () {
     console.log("📌 Trang đã tải xong, bắt đầu tải tiến trình từ GitHub...");
