@@ -661,16 +661,13 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
     }
 });
 
-// Hàm lấy SHA của file từ GitHub
-
+// Hàm tải tiến trình từ GitHub
 async function loadProgress() {
     try {
         console.log("📥 Đang tải tiến trình từ GitHub...");
 
         const response = await fetch(GITHUB_SAVE_PROGRESS_URL, {
-            headers: {
-                'Accept': 'application/vnd.github.v3+json'
-            }
+            headers: { 'Accept': 'application/vnd.github.v3+json' }
         });
 
         if (!response.ok) {
@@ -687,54 +684,78 @@ async function loadProgress() {
             progressData = {};
         }
 
-        // Gọi lại hiển thị danh sách bài tập để cập nhật màu nền
-        displayProblemList();
+        displayProblemList(); // Hiển thị danh sách bài tập sau khi tải tiến trình
     } catch (error) {
         console.error("❌ Không thể tải tiến trình:", error);
-        progressData = {}; // Nếu lỗi, tránh bị undefined
+        progressData = {};
     }
 }
 
-// Hàm hiển thị danh sách bài tập
-function displayProblemList() {
-    console.log("🎨 Đang hiển thị danh sách bài tập...");
-    const problemContainer = document.getElementById('problemList');
+// Hàm hiển thị danh sách bài tập từ Google Sheets
+async function displayProblemList() {
+    try {
+        console.log("📥 Đang tải danh sách bài tập từ Google Sheets...");
 
-    if (!problemContainer) {
-        console.error("❌ Không tìm thấy phần tử 'problemList' trong DOM.");
-        return;
-    }
-
-    problemContainer.innerHTML = ''; // Xóa nội dung cũ
-
-    // Hiển thị danh sách bài tập từ 1-10 (hoặc từ dữ liệu có sẵn)
-    for (let i = 1; i <= 10; i++) {
-        const problemBox = document.createElement('div');
-        problemBox.textContent = `Bài ${i}`;
-        problemBox.className = 'problem-box';
-
-        // Nếu bài tập chưa có trong progressData, đặt mặc định là false
-        if (!(i in progressData)) {
-            progressData[i] = false;
+        const response = await fetch(SHEET_URL);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        // Hàm cập nhật màu sắc
-        function updateProblemColor() {
-            problemBox.style.backgroundColor = progressData[i] ? 'green' : 'yellow';
+        const text = await response.text();
+        const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/);
+
+        if (!match || match.length < 2) {
+            throw new Error("❌ Không thể phân tích dữ liệu từ Google Sheets.");
         }
 
-        updateProblemColor(); // Cập nhật màu khi tải trang
+        const jsonData = JSON.parse(match[1]);
+        const rows = jsonData.table.rows;
 
-        problemBox.addEventListener("click", async () => {
-            progressData[i] = !progressData[i]; // Đổi trạng thái
-            updateProblemColor(); // Cập nhật màu sau khi click
-            await saveProgress(progressData); // Lưu tiến trình lên GitHub
+        if (!rows || rows.length === 0) {
+            console.warn('⚠ Không có bài tập nào trong Google Sheets.');
+            return;
+        }
+
+        const problemContainer = document.getElementById('problemList');
+        if (!problemContainer) {
+            console.error("❌ Không tìm thấy phần tử 'problemList' trong DOM.");
+            return;
+        }
+
+        problemContainer.innerHTML = ''; // Xóa danh sách cũ
+
+        rows.forEach(row => {
+            const problemIndex = row.c[0]?.v; // Lấy số bài từ cột A của Google Sheets
+
+            if (problemIndex != null) {
+                if (!(problemIndex in progressData)) {
+                    progressData[problemIndex] = false; // Nếu chưa có trong JSON, đặt mặc định là false
+                }
+
+                const problemBox = document.createElement('div');
+                problemBox.textContent = problemIndex; // Chỉ hiển thị số bài, không thêm chữ "Bài"
+                problemBox.className = 'problem-box';
+
+                function updateProblemColor() {
+                    problemBox.style.backgroundColor = progressData[problemIndex] ? 'green' : 'yellow';
+                }
+
+                updateProblemColor(); // Cập nhật màu ngay khi hiển thị
+
+                problemBox.addEventListener("click", async () => {
+                    progressData[problemIndex] = !progressData[problemIndex];
+                    updateProblemColor(); // Cập nhật màu khi click
+                    await saveProgress(progressData); // Lưu tiến trình lên GitHub
+                });
+
+                problemContainer.appendChild(problemBox);
+            }
         });
 
-        problemContainer.appendChild(problemBox);
+        console.log("✅ Danh sách bài tập đã cập nhật từ Google Sheets:", progressData);
+    } catch (error) {
+        console.error('❌ Lỗi khi hiển thị danh sách bài tập:', error);
     }
-
-    console.log("✅ Danh sách bài tập đã hiển thị:", problemContainer.children.length, "bài.");
 }
 
 // Hàm lưu tiến trình lên GitHub
@@ -766,7 +787,7 @@ async function saveProgress(progressData) {
     }
 }
 
-// Khi trang tải xong, tự động tải tiến trình từ GitHub
+// Khi trang tải xong, tự động tải tiến trình từ GitHub và hiển thị danh sách bài tập
 document.addEventListener("DOMContentLoaded", function () {
     console.log("📌 Trang đã tải xong, bắt đầu tải tiến trình từ GitHub...");
     loadProgress();
