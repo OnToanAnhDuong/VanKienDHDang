@@ -853,7 +853,8 @@ async function loadProgress() {
     } catch (error) {
         console.error("❌ Lỗi khi tải tiến trình:", error);
         progressData = {};
-    }
+     }
+}
 });
     
         
