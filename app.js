@@ -761,7 +761,7 @@ async function displayProblemList() {
 // Hàm lưu tiến trình lên GitHub
 async function saveProgress(progressData) {
     try {
-        console.log("📤 Gửi tiến trình lên API server...", progressData);
+        console.log("📤 [Client] Dữ liệu trước khi gửi lên API:", JSON.stringify(progressData, null, 2));
 
         const apiUrl = `${window.location.origin}/api/save-progress`;
 
@@ -775,16 +775,18 @@ async function saveProgress(progressData) {
 
         const result = await response.json();
 
+        console.log("📤 [Client] Response từ API:", result);
+
         if (!response.ok) {
             console.error('❌ Lỗi khi lưu tiến trình:', result);
-            alert("Lưu tiến trình thất bại! Xem console để biết chi tiết."); 
+            alert("Lưu tiến trình thất bại! Kiểm tra console để biết chi tiết.");
         } else {
-            console.log("✅ Tiến trình đã được lưu lên GitHub!", result);
+            console.log("✅ [Client] Tiến trình đã được lưu lên GitHub!");
             alert("Tiến trình đã được lưu thành công!");
         }
     } catch (error) {
         console.error('❌ Lỗi khi gọi API lưu tiến trình:', error);
-        alert("Lỗi khi gọi API lưu tiến trình! Xem console để biết chi tiết.");
+        alert("Lỗi khi gọi API lưu tiến trình! Kiểm tra console.");
     }
 }
 
