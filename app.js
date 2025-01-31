@@ -760,9 +760,6 @@ async function displayProblemList() {
 }
 
 // Hàm lưu tiến trình lên GitHub
-const GITHUB_SAVE_PROGRESS_URL = 'https://api.github.com/repos/OnToanAnhDuong/WEBMOi/contents/progress.json';
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN || import.meta.env.VITE_GITHUB_TOKEN; // Lấy biến môi trường
-
 async function saveProgress(progressData) {
     try {
         console.log("📤 [Client] Dữ liệu trước khi gửi lên GitHub:", JSON.stringify(progressData, null, 2));
