@@ -9,7 +9,6 @@ export default async function handler(req, res) {
     console.log("📥 API nhận request:", req.body);
 
     const { progressData } = req.body;
-
     if (!progressData || typeof progressData !== "object") {
         console.error("❌ Dữ liệu không hợp lệ:", progressData);
         return res.status(400).json({ error: "Dữ liệu không hợp lệ." });
