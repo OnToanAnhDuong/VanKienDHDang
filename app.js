@@ -662,6 +662,12 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 });
 
 // Hàm lấy SHA của file từ GitHub
+const GITHUB_SAVE_PROGRESS_URL = 'https://api.github.com/repos/OnToanAnhDuong/WEBMOi/contents/progress.json';
+
+// Dùng `let` để tránh lỗi "Assignment to constant variable"
+let progressData = {};
+
+// Hàm lấy SHA của file từ GitHub
 async function getFileSha() {
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
     if (!GITHUB_TOKEN) {
@@ -758,8 +764,8 @@ async function saveProgressFromClient(progressData) {
     }
 }
 
-// Hàm cập nhật giao diện bài tập
-function updateProblemList() {
+// Hàm hiển thị danh sách bài tập
+function displayProblemList() {
     console.log("🎨 Đang cập nhật danh sách bài tập...");
 
     const problemContainer = document.getElementById('problemList');
@@ -779,11 +785,11 @@ function updateProblemList() {
             problemBox.style.backgroundColor = progressData[problemIndex] ? 'green' : 'yellow';
         }
 
-        updateProblemColor(); // Cập nhật màu khi tải dữ liệu
+        updateProblemColor(); // Cập nhật màu ngay khi hiển thị
 
         problemBox.addEventListener("click", async () => {
             progressData[problemIndex] = !progressData[problemIndex];
-            updateProblemColor(); // Cập nhật màu khi click
+            updateProblemColor(); // Cập nhật màu ngay khi click
             await saveProgressFromClient(progressData);
         });
 
@@ -818,11 +824,11 @@ async function loadProgress() {
             console.warn("⚠ Không có dữ liệu tiến trình trên GitHub, khởi tạo mới.");
         }
 
-        // Sau khi tải dữ liệu, cập nhật giao diện
-        updateProblemList();
+        // Gọi hàm cập nhật giao diện sau khi tải dữ liệu
+        displayProblemList();
     } catch (error) {
-        console.error("❌ Lỗi khi tải tiến trình:", error);
-        progressData = {}; // Nếu lỗi, đảm bảo progressData không undefined
+        console.error("❌ Không thể tải tiến độ học tập. Chi tiết lỗi:", error);
+        progressData = {}; // Đảm bảo biến không bị undefined nếu xảy ra lỗi
     }
 }
 
