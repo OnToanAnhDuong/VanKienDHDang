@@ -5,19 +5,23 @@
  <link rel="stylesheet" href="style.css"> <!-- Kết nối CSS -->
      <!-- Thêm MathJax -->
    
-    <script>
-        window.MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']]
-            },
-            svg: {
-                fontCache: 'global'
-            }
-        };
-    </script>
-    <script id="MathJax-script" async
-        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-    </script>
+  <script>
+    window.MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        },
+        svg: {
+            fontCache: 'global'
+        }
+    };
+</script>
+
+<!-- Tải MathJax từ CDN -->
+<script id="MathJax-script" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"
+    onload="mathjaxReady()">
+</script>
 </head>
 <body>
     <h1>ÔN LYỆN TOÁN LỚP 9 - THẦY GIÁO TÔN THANH CHƯƠNG</h1>    
