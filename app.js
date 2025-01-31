@@ -17,6 +17,7 @@
         let studentName = '';
 	let currentProblemIndex = 0; // Bắt đầu từ bài đầu tiên
 	let progressData = {}; // Đổi từ const thành let để có thể cập nhật giá trị
+	const GITHUB_TOKEN = process.env.GITHUB_TOKEN || import.meta.env.VITE_GITHUB_TOKEN; // Lấy biến môi trường
         function getNextApiKey() {
             const key = API_KEYS[currentKeyIndex];
             currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
