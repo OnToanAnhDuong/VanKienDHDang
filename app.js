@@ -662,12 +662,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 });
 
 // Hàm lấy SHA của file từ GitHub
-const GITHUB_SAVE_PROGRESS_URL = 'https://api.github.com/repos/OnToanAnhDuong/WEBMOi/contents/progress.json';
 
-// Dùng `let` để tránh lỗi "Assignment to constant variable"
-let progressData = {};
-
-// Hàm lấy SHA của file từ GitHub
 async function getFileSha() {
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
     if (!GITHUB_TOKEN) {
@@ -766,7 +761,7 @@ async function saveProgressFromClient(progressData) {
 
 // Hàm hiển thị danh sách bài tập
 function displayProblemList() {
-    console.log("🎨 Đang cập nhật danh sách bài tập...");
+    console.log("🎨 Đang cập nhật danh sách bài tập trên giao diện...");
 
     const problemContainer = document.getElementById('problemList');
     if (!problemContainer) {
@@ -774,11 +769,11 @@ function displayProblemList() {
         return;
     }
 
-    problemContainer.innerHTML = ''; // Xóa nội dung cũ
+    problemContainer.innerHTML = ''; // Xóa nội dung cũ trước khi cập nhật mới
 
     Object.keys(progressData).forEach(problemIndex => {
         const problemBox = document.createElement('div');
-        problemBox.textContent = problemIndex;
+        problemBox.textContent = `Bài ${problemIndex}`;
         problemBox.className = 'problem-box';
 
         function updateProblemColor() {
@@ -796,7 +791,7 @@ function displayProblemList() {
         problemContainer.appendChild(problemBox);
     });
 
-    console.log("✅ Danh sách bài tập đã cập nhật từ JSON:", progressData);
+    console.log("✅ Danh sách bài tập đã được cập nhật:", progressData);
 }
 
 // Hàm tải tiến trình từ GitHub
@@ -824,7 +819,7 @@ async function loadProgress() {
             console.warn("⚠ Không có dữ liệu tiến trình trên GitHub, khởi tạo mới.");
         }
 
-        // Gọi hàm cập nhật giao diện sau khi tải dữ liệu
+        // Sau khi tải xong tiến trình, cập nhật danh sách bài tập trên giao diện
         displayProblemList();
     } catch (error) {
         console.error("❌ Không thể tải tiến độ học tập. Chi tiết lỗi:", error);
@@ -834,9 +829,10 @@ async function loadProgress() {
 
 // Gọi hàm load khi trang tải lên
 document.addEventListener("DOMContentLoaded", function () {
-    console.log("📌 Trang đã tải xong, bắt đầu load tiến trình...");
+    console.log("📌 Trang đã tải xong, bắt đầu tải tiến trình từ GitHub...");
     loadProgress();
 });
+
 
 });
     
