@@ -16,6 +16,7 @@
         let currentHint = '';
         let studentName = '';
 	let currentProblemIndex = 0; // Bắt đầu từ bài đầu tiên
+	let progressData = {}; // Đổi từ const thành let để có thể cập nhật giá trị
         function getNextApiKey() {
             const key = API_KEYS[currentKeyIndex];
             currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
@@ -827,7 +828,7 @@ async function displayProblemList() {
 }
 
 // Hàm tải tiến trình từ GitHub
-let progressData = {}; // Đổi từ const thành let để có thể cập nhật giá trị
+
 
 async function loadProgress() {
     try {
