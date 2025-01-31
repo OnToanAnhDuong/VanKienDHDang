@@ -68,3 +68,4 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: "Lỗi khi lưu tiến trình lên GitHub." });
     }
 }
+console.log("🔍 Kiểm tra GITHUB_TOKEN:", process.env.GITHUB_TOKEN ? "✅ Có tồn tại" : "❌ Không tồn tại");
