@@ -1,5 +1,8 @@
 {
-    "1": true,
-    "2": false,
-    "3": true
+  "studentId": "student123",
+  "progress": {
+    "problem1": true,
+    "problem2": false,
+    "problem3": true
+  }
 }
