@@ -17,8 +17,7 @@
         let studentName = '';
 	let currentProblemIndex = 0; // Bắt đầu từ bài đầu tiên
 	let progressData = {}; // Đổi từ const thành let để có thể cập nhật giá trị
-	const GITHUB_TOKEN = process.env.GITHUB_TOKEN || "";
-        function getNextApiKey() {
+	function getNextApiKey() {
             const key = API_KEYS[currentKeyIndex];
             currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
             return key;
@@ -762,55 +761,20 @@ async function displayProblemList() {
 // Hàm lưu tiến trình lên GitHub
 async function saveProgress(progressData) {
     try {
-        console.log("📤 [Client] Dữ liệu trước khi gửi lên GitHub:", JSON.stringify(progressData, null, 2));
+        console.log("📤 [Client] Gửi dữ liệu lên server:", JSON.stringify(progressData, null, 2));
 
-        // Kiểm tra xem GITHUB_TOKEN có tồn tại không
-        if (!GITHUB_TOKEN) {
-            console.error("❌ Lỗi: GITHUB_TOKEN không được khai báo!");
-            alert("❌ Lỗi: GITHUB_TOKEN chưa được khai báo trong môi trường!");
-            return;
-        }
-
-        // Lấy SHA của file JSON nếu nó đã tồn tại
-        let sha = null;
-        const shaResponse = await fetch(GITHUB_SAVE_PROGRESS_URL, {
+        const response = await fetch("/api/save-progress", {
+            method: "POST",
             headers: {
-                'Accept': 'application/vnd.github.v3+json',
-                'Authorization': `Bearer ${GITHUB_TOKEN}`
-            }
-        });
-
-        if (shaResponse.ok) {
-            const shaData = await shaResponse.json();
-            sha = shaData.sha || null;
-            console.log("✅ SHA hiện tại:", sha);
-        } else if (shaResponse.status === 404) {
-            console.warn("⚠ File chưa tồn tại, sẽ tạo mới.");
-        } else {
-            throw new Error("❌ Lỗi khi lấy SHA file từ GitHub.");
-        }
-
-        // Mã hóa nội dung JSON thành Base64
-        const content = btoa(unescape(encodeURIComponent(JSON.stringify(progressData, null, 2))));
-
-        // Ghi dữ liệu trực tiếp lên GitHub
-        const saveResponse = await fetch(GITHUB_SAVE_PROGRESS_URL, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${GITHUB_TOKEN}`
+                "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-                message: 'Cập nhật tiến trình học sinh',
-                content: content,
-                sha: sha || null
-            })
+            body: JSON.stringify({ progressData }),
         });
 
-        const saveData = await saveResponse.json();
-        console.log("📤 [Client] Response từ GitHub:", saveData);
+        const result = await response.json();
+        console.log("📤 [Client] Response từ server:", result);
 
-        if (!saveResponse.ok) {
+        if (!response.ok) {
             throw new Error("❌ Lỗi khi lưu tiến trình vào GitHub.");
         }
 
