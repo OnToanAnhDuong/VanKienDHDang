@@ -660,6 +660,12 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
         alert(`Không thể tải tiến độ học tập. Chi tiết lỗi: ${error.message}`);
     }
 });
+const GITHUB_SAVE_PROGRESS_URL = 'https://api.github.com/repos/OnToanAnhDuong/WEBMOi/contents/progress.json';
+
+// Dùng `let` để tránh lỗi "Assignment to constant variable"
+let progressData = {};
+
+// Hàm lấy SHA của file từ GitHub
 async function getFileSha() {
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
     if (!GITHUB_TOKEN) {
@@ -693,6 +699,7 @@ async function getFileSha() {
     }
 }
 
+// Hàm lưu tiến trình lên GitHub
 async function saveProgress(progressData) {
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
     if (!GITHUB_TOKEN) {
@@ -754,7 +761,7 @@ async function saveProgressFromClient(progressData) {
 }
 
 // Ví dụ dữ liệu tiến trình học sinh
-const progressData = {
+progressData = {
     studentId: "student123",
     progress: {
         "1": true,
@@ -828,8 +835,6 @@ async function displayProblemList() {
 }
 
 // Hàm tải tiến trình từ GitHub
-
-
 async function loadProgress() {
     try {
         console.log("📥 Đang tải tiến trình từ GitHub...");
@@ -847,17 +852,18 @@ async function loadProgress() {
         const data = await response.json();
         if (data && data.content) {
             const decodedContent = Buffer.from(data.content, 'base64').toString('utf-8');
-            progressData = JSON.parse(decodedContent); // Cập nhật giá trị cho progressData
+            progressData = JSON.parse(decodedContent);
         } else {
-            progressData = {}; // Nếu không có dữ liệu, khởi tạo là object rỗng
+            progressData = {};
         }
 
         console.log("✅ Tiến trình đã tải thành công:", progressData);
     } catch (error) {
         console.error("❌ Lỗi khi tải tiến trình:", error);
-        progressData = {}; // Đảm bảo biến không bị undefined nếu xảy ra lỗi
+        progressData = {};
     }
 }
+
 });
     
         
