@@ -2,15 +2,20 @@ const GITHUB_SAVE_PROGRESS_URL = 'https://api.github.com/repos/OnToanAnhDuong/WE
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 export default async function handler(req, res) {
+    if (!GITHUB_TOKEN) {
+        console.error("❌ Lỗi: GITHUB_TOKEN chưa được thiết lập!");
+        return res.status(500).json({ error: "GITHUB_TOKEN không tồn tại. Kiểm tra biến môi trường trên Vercel." });
+    }
+
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method Not Allowed' });
+        return res.status(405).json({ error: "Method Not Allowed. Chỉ hỗ trợ POST." });
     }
 
     console.log("📥 API nhận request:", req.body);
 
     const { progressData } = req.body;
     if (!progressData || typeof progressData !== "object") {
-        console.error("❌ Dữ liệu không hợp lệ:", progressData);
+        console.error("❌ Lỗi: Dữ liệu không hợp lệ:", progressData);
         return res.status(400).json({ error: "Dữ liệu không hợp lệ." });
     }
 
@@ -31,10 +36,13 @@ export default async function handler(req, res) {
         } else if (shaResponse.status === 404) {
             console.warn("⚠ File chưa tồn tại, sẽ tạo mới.");
         } else {
-            console.error("❌ Lỗi khi lấy SHA từ GitHub:", await shaResponse.json());
+            const errorDetails = await shaResponse.json();
+            console.error("❌ Lỗi khi lấy SHA từ GitHub:", errorDetails);
+            return res.status(500).json({ error: "Lỗi khi lấy SHA từ GitHub.", details: errorDetails });
         }
     } catch (error) {
         console.error("❌ Lỗi khi lấy SHA:", error);
+        return res.status(500).json({ error: "Lỗi khi lấy SHA." });
     }
 
     try {
