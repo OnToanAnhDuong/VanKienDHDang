@@ -7,7 +7,7 @@
         "dest": "/"
       },
       {
-        "src": "pages/api/(.*)",
+        "src": "/api/(.*)",
         "dest": "/"
       }
     ]
