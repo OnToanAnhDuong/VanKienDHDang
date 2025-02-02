@@ -1,6 +1,5 @@
 const GITHUB_SAVE_PROGRESS_URL = 'https://api.github.com/repos/OnToanAnhDuong/WEBMOi/contents/progress.json';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-
 module.exports = async (req, res) => {
     try {
         // Kiểm tra biến môi trường
