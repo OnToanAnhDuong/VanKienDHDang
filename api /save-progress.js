@@ -1,26 +1,31 @@
 const GITHUB_SAVE_PROGRESS_URL = 'https://api.github.com/repos/OnToanAnhDuong/WEBMOi/contents/progress.json';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
-export default async function handler(req, res) {
-    if (!GITHUB_TOKEN) {
-        console.error("❌ Lỗi: GITHUB_TOKEN chưa được thiết lập!");
-        return res.status(500).json({ error: "GITHUB_TOKEN không tồn tại. Kiểm tra biến môi trường trên Vercel." });
-    }
-
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: "Method Not Allowed. Chỉ hỗ trợ POST." });
-    }
-
-    console.log("📥 API nhận request:", req.body);
-
-    const { progressData } = req.body;
-    if (!progressData || typeof progressData !== "object") {
-        console.error("❌ Lỗi: Dữ liệu không hợp lệ:", progressData);
-        return res.status(400).json({ error: "Dữ liệu không hợp lệ." });
-    }
-
-    let sha = null;
+module.exports = async (req, res) => {
     try {
+        // Kiểm tra biến môi trường
+        if (!GITHUB_TOKEN) {
+            console.error("❌ Lỗi: GITHUB_TOKEN chưa được thiết lập!");
+            return res.status(500).json({ error: "GITHUB_TOKEN không tồn tại. Kiểm tra biến môi trường trên Vercel." });
+        }
+
+        // Chỉ cho phép phương thức POST
+        if (req.method !== 'POST') {
+            return res.status(405).json({ error: "Method Not Allowed. Chỉ hỗ trợ POST." });
+        }
+
+        console.log("📥 API nhận request:", req.body);
+
+        // Kiểm tra dữ liệu đầu vào
+        const { progressData } = req.body;
+        if (!progressData || typeof progressData !== "object") {
+            console.error("❌ Lỗi: Dữ liệu không hợp lệ:", progressData);
+            return res.status(400).json({ error: "Dữ liệu không hợp lệ. Vui lòng gửi JSON hợp lệ." });
+        }
+
+        let sha = null;
+
+        // Lấy SHA của file JSON trên GitHub (nếu đã tồn tại)
         console.log("📥 [API] Đang lấy SHA của file JSON...");
         const shaResponse = await fetch(GITHUB_SAVE_PROGRESS_URL, {
             headers: {
@@ -40,15 +45,12 @@ export default async function handler(req, res) {
             console.error("❌ Lỗi khi lấy SHA từ GitHub:", errorDetails);
             return res.status(500).json({ error: "Lỗi khi lấy SHA từ GitHub.", details: errorDetails });
         }
-    } catch (error) {
-        console.error("❌ Lỗi khi lấy SHA:", error);
-        return res.status(500).json({ error: "Lỗi khi lấy SHA." });
-    }
 
-    try {
+        // Mã hóa dữ liệu thành Base64 để gửi lên GitHub
         console.log("📤 [API] Đang ghi dữ liệu lên GitHub...");
         const content = Buffer.from(JSON.stringify(progressData, null, 2)).toString('base64');
 
+        // Gửi request PUT để lưu dữ liệu lên GitHub
         const saveResponse = await fetch(GITHUB_SAVE_PROGRESS_URL, {
             method: 'PUT',
             headers: {
@@ -75,4 +77,4 @@ export default async function handler(req, res) {
         console.error("❌ Lỗi khi ghi dữ liệu lên GitHub:", error);
         return res.status(500).json({ error: "Lỗi khi ghi dữ liệu lên GitHub." });
     }
-}
+};
