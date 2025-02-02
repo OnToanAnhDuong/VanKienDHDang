@@ -1,6 +1,7 @@
 {
-  "version": 2,
-   "routes": [
+    "version": 2,
+   
+    "routes": [
       {
         "src": "/",
         "dest": "/"
@@ -10,5 +11,5 @@
         "dest": "/"
       }
     ]
+  }
 
-}
